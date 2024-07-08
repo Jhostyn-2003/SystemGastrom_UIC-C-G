@@ -1,0 +1,55 @@
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category{
+  id  Int @id @default(autoincrement())
+  name String
+  slug String
+  products Product[] 
+}
+
+model Product{
+  id  Int @id @default(autoincrement())
+  name String
+  price Float 
+  image String 
+  categoryId Int
+  category Category @relation(fields: [categoryId], references: [id])
+  orderItems OrderProducts[]
+}
+
+model Order {
+  id Int @id @default(autoincrement())
+  name String 
+  total Float 
+  date DateTime @default(now())
+  status Boolean @default(false)
+  orderReadyAt DateTime?
+  orderProducts OrderProducts[]
+  payment Payment? 
+}
+
+model OrderProducts{
+  id Int @id @default(autoincrement())
+  orderId Int 
+  order Order @relation(fields: [orderId], references: [id])
+  productId Int
+  product Product @relation(fields: [productId], references: [id])
+  quantity Int
+}
+
+model Payment {
+  id              Int       @id @default(autoincrement())
+  orderId         Int       @unique
+  order           Order     @relation(fields: [orderId], references: [id])
+  transferImage   String?    // Nombre o ruta de la imagen de la transferencia
+  description     String?   // Descripción opcional del método de pago
+}
