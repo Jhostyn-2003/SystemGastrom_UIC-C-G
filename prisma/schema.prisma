@@ -28,14 +28,16 @@ model Product{
 
 model Order {
   id Int @id @default(autoincrement())
-  name String 
-  total Float 
+  name String
+  total Float
   date DateTime @default(now())
   status Boolean @default(false)
   orderReadyAt DateTime?
   orderProducts OrderProducts[]
-  payment Payment? 
+  payment Payment?
+  chatID String?  // Nuevo campo opcional para el ID de chat
 }
+
 
 model OrderProducts{
   id Int @id @default(autoincrement())

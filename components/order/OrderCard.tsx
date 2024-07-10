@@ -1,14 +1,15 @@
+// components/order/OrderCard.tsx
 import { completeOrder } from "@/actions/complete-order-action"
 import { deleteOrder } from "@/actions/delete-order-action"
 import { OrderWithProducts } from "@/src/types"
 import { formatCurrecy } from "@/src/utils"
 
-//mensajes de eliminacion 
+//mensajes de eliminacion
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import { toast } from 'react-toastify';
 
-//Para el modal 
+//Para el modal
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -21,8 +22,6 @@ import { useTheme } from '@mui/material/styles';
 
 import Modal from 'react-modal';
 import { getImagePathTipos } from '@/src/utils'; // Asegúrate de importar la función getImagePathTipos adecuadamente
-
-
 
 type OrderCardProps = {
     order: OrderWithProducts
@@ -76,7 +75,6 @@ export default function OrderCard({ order }: OrderCardProps) {
         toast.success('Orden marcada como completada');
     };
 
-
     return (
         <section
             aria-labelledby="summary-heading"
@@ -101,6 +99,7 @@ export default function OrderCard({ order }: OrderCardProps) {
                     <dd className="text-base font-medium text-gray-900">{formatCurrecy(order.total)}</dd>
                 </div>
             </dl>
+            <p className="text-sm font-medium text-gray-500">Chat ID: {order.chatID ?? "No aplica"}</p>
 
             {/*Se agregala Funcionalidad para el Modal */}
             {/* Botón para abrir el modal */}
@@ -110,8 +109,6 @@ export default function OrderCard({ order }: OrderCardProps) {
                 value="Ver Detalles del Pago"
                 onClick={handleOpenModal}
             />
-
-
 
             {/* Modal de Material-UI */}
             <Dialog
@@ -140,9 +137,6 @@ export default function OrderCard({ order }: OrderCardProps) {
                 </DialogActions>
             </Dialog>
 
-
-
-
             {/*Otros botones */}
             <form onSubmit={handleCompleteOrder}>
                 <input
@@ -155,13 +149,12 @@ export default function OrderCard({ order }: OrderCardProps) {
                     className="bg-sky-900 hover:bg-indigo-800 text-white w-full mt-5 p-3 uppercase font-bold cursor-pointer"
                     value='Marcar Orden Completada'
                 />
-
             </form>
             {/* Formulario para eliminar la orden */}
             <form onSubmit={handleDeleteOrder}>
                 <input
                     type="hidden"
-                    value={order.id.toString()}  
+                    value={order.id.toString()}
                     name="order_id"
                 />
                 <input
