@@ -1,5 +1,5 @@
-"use client"
 // components/order/OrderCard.tsx
+"use client"
 import { completeOrder } from "@/actions/complete-order-action";
 import { deleteOrder } from "@/actions/delete-order-action";
 import { OrderWithProducts } from "@/src/types";
@@ -67,11 +67,25 @@ export default function OrderCard({ order }: OrderCardProps) {
         }
     };
 
-    const handleCompleteOrder = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleCompleteOrder = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
         completeOrder(formData);
         toast.success('Orden marcada como completada');
+
+        if (order.chatID) {
+            const message = "El pago se ha completado correctamente por lo tanto la orden se ha procesado con éxito, en pocos minutos enviaremos el pedido a tu mesa, si tienes algun inconveniente puedes preguntar al chat o acercarte personalmente a caja 👏🎉🥳";
+            await fetch('/api/send-order-complete-to-telegram', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    chatId: order.chatID,
+                    message,
+                }),
+            });
+        }
     };
 
     const handleDeleteWithReasons = async () => {
@@ -202,8 +216,8 @@ export default function OrderCard({ order }: OrderCardProps) {
                             <label>
                                 <input
                                     type="checkbox"
-                                    value="La imagen no es legible, cree su orden nuevamente"
-                                    onChange={() => handleReasonChange("La imagen no es legible, cree su orden nuevamente")}
+                                    value="La imagen no es legible, cree su orden nuevamente 🖼❌"
+                                    onChange={() => handleReasonChange("La imagen no es legible, cree su orden nuevamente 🖼❌")}
                                     style={{ marginRight: '10px' }} // Add horizontal space
                                 />
                                 La imagen no es legible, cree su orden nuevamente
@@ -213,8 +227,8 @@ export default function OrderCard({ order }: OrderCardProps) {
                             <label>
                                 <input
                                     type="checkbox"
-                                    value="Su comprobante de pago no es válido intente nuevamente"
-                                    onChange={() => handleReasonChange("Su comprobante de pago no es válido intente nuevamente")}
+                                    value="Su comprobante de pago no es válido intente nuevamente 📝❌"
+                                    onChange={() => handleReasonChange("Su comprobante de pago no es válido intente nuevamente 📝❌")}
                                     style={{ marginRight: '10px' }} // Add horizontal space
                                 />
                                 Su comprobante de pago no es válido intente nuevamente
@@ -224,8 +238,8 @@ export default function OrderCard({ order }: OrderCardProps) {
                             <label>
                                 <input
                                     type="checkbox"
-                                    value="Tiempo de espera en el pago excedido, cree su orden nuevamente"
-                                    onChange={() => handleReasonChange("Tiempo de espera en el pago excedido, cree su orden nuevamente")}
+                                    value="Tiempo de espera en el pago excedido, cree su orden nuevamente ⏰❌"
+                                    onChange={() => handleReasonChange("Tiempo de espera en el pago excedido, cree su orden nuevamente ⏰❌")}
                                     style={{ marginRight: '10px' }} // Add horizontal space
                                 />
                                 Tiempo de espera en el pago excedido, cree su orden nuevamente
