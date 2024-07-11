@@ -1,10 +1,17 @@
-// send-message-delete-to-telegram.ts
-
+// pages/api/send-message-delete-to-telegram.ts
+import { NextApiRequest, NextApiResponse } from 'next';
 import fetch from 'node-fetch';
 
-export const sendDeleteMessageToTelegram = async (chatId: string, reason: string) => {
+interface TelegramResponse {
+    ok: boolean;
+    result?: any;
+    description?: string;
+}
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
         const token = process.env.TELEGRAM_BOT_TOKEN;
+        const { chatId, message } = req.body;
 
         if (!token) {
             throw new Error('El token de Telegram no está definido');
@@ -12,21 +19,7 @@ export const sendDeleteMessageToTelegram = async (chatId: string, reason: string
 
         const url = `https://api.telegram.org/bot${token}/sendMessage`;
 
-        let message = '';
-        switch (reason) {
-            case 'image_not_clear':
-                message = 'La imagen no es legible, cree su orden nuevamente';
-                break;
-            case 'invalid_payment_proof':
-                message = 'Su comprobante de pago no es válido, intente nuevamente';
-                break;
-            case 'payment_timeout':
-                message = 'Tiempo de espera en el pago excedido, cree su orden nuevamente';
-                break;
-            default:
-                // No se envía ningún mensaje si no hay motivo específico seleccionado
-                return;
-        }
+        const formattedMessage = message.split('\n').join('\n\n'); // Add double line breaks for spacing
 
         const response = await fetch(url, {
             method: 'POST',
@@ -35,7 +28,7 @@ export const sendDeleteMessageToTelegram = async (chatId: string, reason: string
             },
             body: JSON.stringify({
                 chat_id: chatId,
-                text: message,
+                text: formattedMessage,
             }),
         });
 
@@ -45,8 +38,18 @@ export const sendDeleteMessageToTelegram = async (chatId: string, reason: string
             throw new Error(errorData || 'Error al enviar el mensaje al bot de Telegram');
         }
 
-        console.log('Mensaje enviado a Telegram:', message);
-    } catch (error) {
-        console.error('Error al enviar el mensaje a Telegram:', error);
+        const rawData = await response.json();
+        const data: TelegramResponse = rawData as TelegramResponse;
+
+        if (data.ok) {
+            res.status(200).json({ message: 'Mensaje enviado al bot de Telegram' });
+        } else {
+            console.error('Error en la respuesta de Telegram:', data);
+            throw new Error(data.description || 'Error al enviar el mensaje al bot de Telegram');
+        }
+
+    } catch (error: unknown) {
+        console.error('Error en el handler de Telegram:', error);
+        res.status(500).json({ error: (error as Error).message });
     }
-};
+}
