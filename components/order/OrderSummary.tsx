@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useMemo } from "react";
 import { useStore } from "@/src/store";
@@ -67,8 +67,8 @@ export default function OrderSummary() {
             return;
         }
 
-        if (selectedTable === 'Mesa 1' && !chatId) {
-            toast.error("Ingrese el ID de chat para Mesa 1.");
+        if ((selectedTable === 'Mesa 1' || selectedTable === 'Mesa 2' || selectedTable === 'Mesa 3') && !chatId) {
+            toast.error("Ingrese el ID de chat para la mesa seleccionada.");
             return;
         }
 
@@ -80,7 +80,7 @@ export default function OrderSummary() {
             transferImage: paymentMethod === "transferencia" ? transferImage : "",
             paymentDescription,
             table: selectedTable,
-            chatId: selectedTable === 'Mesa 1' ? chatId : null,
+            chatId: selectedTable !== 'Ninguna' ? chatId : null,
         };
 
         const result = OrderSchema.safeParse(data);
@@ -103,8 +103,8 @@ export default function OrderSummary() {
 
         toast.success("Pedido creado con éxito");
 
-        if (selectedTable === 'Mesa 1') {
-            await sendOrderToTelegram(data);
+        if (selectedTable === 'Mesa 1' || selectedTable === 'Mesa 2' || selectedTable === 'Mesa 3') {
+            await sendOrderToTelegram(data, selectedTable);
         }
 
         clearOrder();
@@ -115,9 +115,20 @@ export default function OrderSummary() {
         setChatId("");
     };
 
-    const sendOrderToTelegram = async (data: any) => {
+    const sendOrderToTelegram = async (data: any, table: string) => {
+        const endpoint = {
+            'Mesa 1': '/api/send-order-to-telegram-mesa1',
+            'Mesa 2': '/api/send-order-to-telegram-mesa2',
+            'Mesa 3': '/api/send-order-to-telegram-mesa3'
+        }[table];
+
+        if (!endpoint) {
+            toast.error('Mesa no válida.');
+            return;
+        }
+
         try {
-            const response = await fetch('/api/send-order-to-telegram-mesa1', {
+            const response = await fetch(endpoint, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -179,7 +190,7 @@ export default function OrderSummary() {
                             </div>
                         </div>
 
-                        {selectedTable === "Mesa 1" && (
+                        {(selectedTable === "Mesa 1" || selectedTable === "Mesa 2" || selectedTable === "Mesa 3") && (
                             <input
                                 type="text"
                                 placeholder="ID de Chat de Telegram"

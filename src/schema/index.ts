@@ -15,6 +15,7 @@ export const OrderSchema = z.object({
     transferImage: z.string().optional(),
     paymentDescription: z.string().min(1, 'La descripción de Pago es requerida'),
     chatId: z.string().optional(), // Agregar el campo chatId
+    table: z.string().optional() // Agregar el campo table
 })
 
 export const OrderIdSchema = z.object({

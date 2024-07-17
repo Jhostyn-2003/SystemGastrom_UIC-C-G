@@ -16,7 +16,6 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
-import Modal from 'react-modal';
 import { getImagePathTipos } from '@/src/utils';
 
 type OrderCardProps = {
@@ -83,11 +82,13 @@ export default function OrderCard({ order }: OrderCardProps) {
                 body: JSON.stringify({
                     chatId: order.chatID,
                     message,
+                    table: order.table || "No esta asociado a una mesa", // Asegúrate de enviar la mesa o un valor predeterminado
                 }),
             });
         }
     };
 
+    // Dentro del método handleDeleteWithReasons en OrderCard.tsx
     const handleDeleteWithReasons = async () => {
         const formData = new FormData();
         formData.append('order_id', order.id.toString());
@@ -102,6 +103,7 @@ export default function OrderCard({ order }: OrderCardProps) {
                 body: JSON.stringify({
                     chatId: order.chatID,
                     message,
+                    table: order.table || "No esta asociado a una mesa", // Asegúrate de enviar la mesa o un valor predeterminado
                 }),
             });
         }
@@ -110,6 +112,7 @@ export default function OrderCard({ order }: OrderCardProps) {
         toast.success('Orden eliminada correctamente');
         setDeleteDialogOpen(false);
     };
+
 
     const handleReasonChange = (reason: string) => {
         setSelectedReasons(prev =>
@@ -141,7 +144,7 @@ export default function OrderCard({ order }: OrderCardProps) {
                     <dd className="text-base font-medium text-gray-900">{formatCurrecy(order.total)}</dd>
                 </div>
             </dl>
-            <p className="text-sm font-medium text-gray-500">Chat ID: {order.chatID ?? "No aplica"}</p>
+            <p className="text-sm font-medium text-gray-500">Chat ID: {order.chatID ?? "No aplica"} {order.table && ` | Ubicación: ${order.table}`}</p>
 
             <input
                 type="button"

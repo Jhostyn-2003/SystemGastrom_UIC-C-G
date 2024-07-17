@@ -10,8 +10,27 @@ interface TelegramResponse {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
-        const token = process.env.TELEGRAM_BOT_TOKEN;
-        const { chatId, message } = req.body;
+        const { chatId, message, table } = req.body;
+
+        if (!table) {
+            throw new Error('La mesa no está definida');
+        }
+
+        let token: string | undefined;
+
+        switch (table) {
+            case 'Mesa 1':
+                token = process.env.TELEGRAM_BOT_TOKEN_MESA1;
+                break;
+            case 'Mesa 2':
+                token = process.env.TELEGRAM_BOT_TOKEN_MESA2;
+                break;
+            case 'Mesa 3':
+                token = process.env.TELEGRAM_BOT_TOKEN_MESA3;
+                break;
+            default:
+                throw new Error('Mesa no válida');
+        }
 
         if (!token) {
             throw new Error('El token de Telegram no está definido');

@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import fetch from 'node-fetch';
 
-// Define la interfaz para la respuesta esperada de la API de Telegram
 interface TelegramResponse {
     ok: boolean;
     result?: any;
@@ -10,7 +9,7 @@ interface TelegramResponse {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
-        const token = process.env.TELEGRAM_BOT_TOKEN_MESA1;
+        const token = process.env.TELEGRAM_BOT_TOKEN_MESA2;
         const { chatId, ...orderData } = req.body;
 
         if (!token) {
@@ -21,7 +20,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const url = `https://api.telegram.org/bot${token}/sendMessage`;
 
-        // Send the initial order message
         const response = await fetch(url, {
             method: 'POST',
             headers: {
@@ -75,11 +73,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 }
 
-// Función para dar formato al mensaje para Telegram
 function formatTelegramMessage(orderData: any): string {
     const { name, total, order, paymentMethod, paymentDescription, table } = orderData;
 
-    // Construye el mensaje con formato legible
     let message = `Nuevo pedido recibido 📋:\n\n`;
     message += `Cliente 👤: ${name}\n`;
     message += `Mesa 🍱: ${table}\n\n`;

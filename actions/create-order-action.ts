@@ -22,13 +22,14 @@ export async function createOrder(data: unknown) {
         const orderData = {
             name: result.data.name,
             total: result.data.total,
+            table: result.data.table, // Asegúrate de incluir table
+            chatID: result.data.chatId, // Asegúrate de incluir chatID
             orderProducts: {
                 create: result.data.order.map((product: any) => ({
                     productId: product.id,
                     quantity: product.quantity,
                 })),
             },
-            chatID: result.data.chatId, // Ensure chatID is included
         };
 
         console.log("Order data to save:", orderData); // Log para mostrar los datos que se guardarán

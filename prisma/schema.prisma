@@ -35,8 +35,10 @@ model Order {
   orderReadyAt DateTime?
   orderProducts OrderProducts[]
   payment Payment?
-  chatID String?  // Nuevo campo opcional para el ID de chat
+  chatID String?  // Campo opcional para el ID de chat
+  table String?  // Nuevo campo opcional para la mesa
 }
+
 
 
 model OrderProducts{
