@@ -1,8 +1,8 @@
 // pages/api/dashboard/stats.ts
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextApiResponse } from 'next';
 import { prisma } from '@/src/lib/prisma';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(res: NextApiResponse) {
   try {
     const [totalProducts, totalCategories, pendingOrders, readyOrders] = await Promise.all([
       prisma.product.count(),

@@ -1,8 +1,8 @@
 // pages/api/orders/pending.ts
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextApiResponse } from 'next';
 import { prisma } from '@/src/lib/prisma';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(res: NextApiResponse) {
   try {
     const orders = await prisma.order.findMany({
       where: {
