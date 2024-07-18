@@ -10,9 +10,20 @@ export default function EditProductForm({children}: {children: React.ReactNode})
 
     const router = useRouter()
 
-    //constante para guardar los cambios al momento de editar
-    const params = useParams()
-    const id = +params.id!
+
+    // Constante para guardar los cambios al momento de editar
+    const params = useParams();
+    // Verifica si params es null o si params.id es undefined antes de intentar convertirlo a número
+    const id = params && params.id ? +params.id : null;
+
+    // Si id es null, maneja el caso adecuadamente (por ejemplo, redirigiendo o mostrando un mensaje de error)
+    if (id === null) {
+        // Redirige al usuario o muestra un mensaje de error
+        console.error('ID del producto no encontrado.');
+        // Ejemplo de redirección: router.push('/ruta-a-redirigir');
+        return null; // Asegúrate de retornar null o algún componente de error para evitar que el resto del componente se ejecute
+    }
+
 
     const handleSubmit = async (formData: FormData) =>{
        const data = {

@@ -4,7 +4,7 @@ import { Product } from "@prisma/client"
 
 
 async function getCategories() {
-    return await prisma.category.findMany()
+    return prisma.category.findMany();
 }
 
 //Para pasar los productos cuando se actualiza en el form

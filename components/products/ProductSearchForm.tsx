@@ -1,6 +1,6 @@
 "use client"
 import { SearchSchema } from "@/src/schema"
-import { redirect, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { toast } from "react-toastify"
 
 
