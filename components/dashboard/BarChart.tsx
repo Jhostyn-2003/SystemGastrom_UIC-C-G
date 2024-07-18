@@ -63,8 +63,10 @@ export default function BarChart() {
       }
     }
 
-    fetchChartData();
-  }, [view]); // Fetch data when view changes
+    fetchChartData().then(r =>
+        console.log('Data fetched successfully:', r)
+    );
+  }, [chartData.datasets, view]); // Fetch data when view changes
 
   const toggleView = () => {
     setView(view === 'daily' ? 'monthly' : 'daily');
@@ -81,7 +83,7 @@ export default function BarChart() {
 
   return (
     <div className='w-full md:col-span-2 relative lg:h-[70vh] h-[50vh] m-auto p-4 border rounded-lg bg-white'>
-        <h2 className='text-xl font-semibold mb-4'>{view === 'daily' ? 'Ingresos Diarios' : 'Ingresos Mensuales'}</h2>
+        <h2 className='text-xl font-semibold mb-4'>{view === 'daily' ? 'Ganancias Diarias' : 'Ganancias Mensuales'}</h2>
       <button onClick={toggleView} className='mb-4 p-2 bg-blue-600 font-bold text-white rounded'>
         {view === 'daily' ? 'Ver por Mes' : 'Ver por Día'}
       </button>

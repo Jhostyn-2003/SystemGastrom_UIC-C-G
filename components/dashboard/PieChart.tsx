@@ -23,8 +23,10 @@ export default function PieChartComponent() {
       }
     }
 
-    fetchData();
-  }, []);
+    fetchData().then(r =>
+        console.log('PieChartComponent data fetched:', chartData)
+    );
+  }, [chartData]);
 
   return (
     /* este funcionaba sin rendirizacion para movil

@@ -73,6 +73,7 @@ export default function OrderSummary() {
         }
 
         const data = {
+            // @ts-ignore
             name: event.currentTarget.name.value,
             total,
             order,
