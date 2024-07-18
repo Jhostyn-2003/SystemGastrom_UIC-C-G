@@ -14,8 +14,8 @@ type AdminRouteProps ={
 
 export default function AdminRoute({link} : AdminRouteProps) {
     const pathname = usePathname()
-    const isActive = pathname.startsWith(link.url)
- 
+    const isActive = pathname ? pathname.startsWith(link.url) : false;
+
     return (
     <Link
         className={`${isActive ? 'bg-sky-900 hover:bg-indigo-800': ''} font-bold text-lg border-t border-gray-200 p-3 last-of-type:border-b`}
