@@ -1,10 +1,11 @@
 // Función para formatear cantidades de dinero
-export function formatCurrency(amount: number) {
+export function formatCurrecy(amount : number){
     return new Intl.NumberFormat('es-US', {
         style: 'currency',
         currency: 'USD'
-    }).format(amount);
+    }).format(amount)
 }
+
 
 // Verifica si la imagen proviene del public o Cloudinary
 export function getImagePath(imagePath: string) {
