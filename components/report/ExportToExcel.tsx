@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
 // Importaciones necesarias
 import React from 'react';
-import { Workbook, Worksheet } from 'exceljs';
+import ExcelJS, { Workbook, Worksheet } from 'exceljs';
 import { FaFileExcel } from 'react-icons/fa';
 import { saveAs } from 'file-saver';
 
@@ -31,19 +31,19 @@ const ExportToExcel: React.FC<ExportToExcelProps> = ({ data }) => {
     // Estilos para el título y descripción
     const titleStyle: Partial<ExcelJS.Style> = {
       font: { name: 'Arial', size: 18, bold: true },
-      alignment: { horizontal: 'center', vertical: 'middle' as ExcelJS.VerticalAlign },
+      alignment: { horizontal: 'center', vertical: 'middle' },
     };
 
     const descriptionStyle: Partial<ExcelJS.Style> = {
       font: { name: 'Arial', size: 11, italic: true },
-      alignment: { horizontal: 'center', vertical: 'middle' as ExcelJS.VerticalAlign },
+      alignment: { horizontal: 'center', vertical: 'middle' },
     };
 
     // Estilos para el encabezado
     const headerStyle: Partial<ExcelJS.Style> = {
       font: { bold: true, color: { argb: 'FFFFFFFF' } },
       fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2A6D8E' } },
-      alignment: { horizontal: 'center', vertical: 'middle' as ExcelJS.VerticalAlign },
+      alignment: { horizontal: 'center', vertical: 'middle' },
       border: { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } },
     };
 
@@ -129,12 +129,12 @@ const ExportToExcel: React.FC<ExportToExcelProps> = ({ data }) => {
   };
 
   return (
-    <button
-      onClick={exportToExcel}
-      className="py-2 px-4 bg-green-500 text-white rounded flex items-center hover:bg-lime-500"
-    >
-      <FaFileExcel style={{ fontSize: '24px', color: 'green', marginRight: '8px' }} /> Exportar a Excel
-    </button>
+      <button
+          onClick={exportToExcel}
+          className="py-2 px-4 bg-green-500 text-white rounded flex items-center hover:bg-lime-500"
+      >
+        <FaFileExcel style={{ fontSize: '24px', color: 'green', marginRight: '8px' }} /> Exportar a Excel
+      </button>
   );
 };
 
