@@ -1,22 +1,22 @@
-
-export function formatCurrecy(amount : number){
+// Función para formatear cantidades de dinero
+export function formatCurrency(amount: number) {
     return new Intl.NumberFormat('es-US', {
         style: 'currency',
         currency: 'USD'
-    }).format(amount)
+    }).format(amount);
 }
 
-//Verifica si la imagen proviene del public o cloudinary 
-export function getImagePath (imagePath: string){
-    const cloudinaryBaseUrl = 'https://res.cloudinary.com'
-    if(imagePath.startsWith(cloudinaryBaseUrl)){
-        return imagePath
-    }else{
-        return `/products/${imagePath}.jpg`
+// Verifica si la imagen proviene del public o Cloudinary
+export function getImagePath(imagePath: string) {
+    const cloudinaryBaseUrl = 'https://res.cloudinary.com';
+    if (imagePath.startsWith(cloudinaryBaseUrl)) {
+        return imagePath;
+    } else {
+        return `/products/${imagePath}.jpg`;
     }
-} 
+}
 
-//Para imagenes de cualquier tipo 
+// Para imágenes de cualquier tipo
 export function getImagePathTipos(imagePath: string): string {
     const cloudinaryBaseUrl = 'https://res.cloudinary.com';
 
@@ -41,12 +41,14 @@ export function getImagePathTipos(imagePath: string): string {
     }
 }
 
-
-
-// Para verificar el tiempo 
+// Para verificar el tiempo
 export const formatLocalTime = (utcDate: string) => {
     const date = new Date(utcDate);
-    const options = { timeZone: 'America/Guayaquil', hour: 'numeric', minute: 'numeric', hour12: true };
+    const options: Intl.DateTimeFormatOptions = {
+        timeZone: 'America/Guayaquil',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+    };
     return date.toLocaleTimeString('es-EC', options);
-  };
-  
+};
