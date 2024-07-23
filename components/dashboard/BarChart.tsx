@@ -19,7 +19,6 @@ ChartJS.register(
   Legend
 );
 
-// Define la interfaz para los datos del gráfico
 interface ChartDataSet {
   label: string;
   data: number[];
@@ -42,12 +41,10 @@ interface ChartDataResponse {
   monthlyRevenue: RevenueEntry[];
 }
 
-// Acciones para el reducer
 type Action =
   | { type: 'SET_DATA'; data: ChartData }
   | { type: 'SET_NO_DATA'; noData: boolean };
 
-// Reducer para manejar el estado
 const chartDataReducer = (state: ChartData, action: Action): ChartData => {
   switch (action.type) {
     case 'SET_DATA':
@@ -181,7 +178,9 @@ export default function BarChart() {
       {noData ? (
         <p className='text-red-500'>No hay datos disponibles para el rango seleccionado.</p>
       ) : (
-        <Bar data={chartData} />
+        <div className={`relative ${view === 'daily' ? 'h-[30vh]' : 'h-[50vh]'}`}>
+          <Bar data={chartData} options={{ maintainAspectRatio: false, responsive: true }} />
+        </div>
       )}
     </div>
   );
