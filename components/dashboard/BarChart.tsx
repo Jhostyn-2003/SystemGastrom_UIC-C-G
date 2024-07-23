@@ -19,6 +19,16 @@ ChartJS.register(
   Legend
 );
 
+interface RevenueEntry {
+  date: string;
+  total: number;
+}
+
+interface ChartDataResponse {
+  dailyRevenue: RevenueEntry[];
+  monthlyRevenue: RevenueEntry[];
+}
+
 export default function BarChart() {
   const [chartData, setChartData] = useState({
     labels: [],
@@ -32,22 +42,37 @@ export default function BarChart() {
     ],
   });
 
-  const [view, setView] = useState('daily'); // State to control the view
+  const [view, setView] = useState<'daily' | 'monthly'>('monthly'); // Inicialmente en vista mensual
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
+  const [noData, setNoData] = useState<boolean>(false); // Estado para controlar la ausencia de datos
 
   useEffect(() => {
     async function fetchChartData() {
       try {
-        const response = await fetch(`/api/revenue/${view}`);
-        const data = await response.json();
+        let url = view === 'daily'
+          ? `/api/revenue/${view}?startDate=${startDate}&endDate=${endDate}`
+          : `/api/revenue/${view}`;
 
-        const labels = data[`${view}Revenue`].map((entry: { date: string }) => {
+        const response = await fetch(url);
+        const data: ChartDataResponse = await response.json();
+
+        if (data[`${view}Revenue`].length === 0) {
+          setNoData(true); // Marca que no hay datos
+          setChartData({ labels: [], datasets: [] }); // Limpia el estado del gráfico
+          return;
+        }
+
+        setNoData(false); // Marca que hay datos
+
+        const labels = data[`${view}Revenue`].map((entry) => {
           const date = new Date(entry.date);
           return view === 'daily'
             ? formatDate(date, 'day')
             : formatDate(date, 'month');
         });
-        
-        const values = data[`${view}Revenue`].map((entry: { total: number }) => entry.total);
+
+        const values = data[`${view}Revenue`].map((entry) => entry.total);
 
         setChartData({
           labels,
@@ -63,31 +88,71 @@ export default function BarChart() {
       }
     }
 
-    fetchChartData().then(r =>
-        console.log('Data fetched successfully:', r)
-    );
-  }, [chartData.datasets, view]); // Fetch data when view changes
+    fetchChartData();
+  }, [view, startDate, endDate]);
 
   const toggleView = () => {
+    if (view === 'daily') {
+      // Resetea las fechas al cambiar a vista mensual
+      setStartDate('');
+      setEndDate('');
+    } else {
+      // Configura las fechas por defecto al cambiar a vista diaria
+      const today = new Date();
+      const start = new Date(today.getFullYear(), today.getMonth(), 1);
+      const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+      setStartDate(formatDate(start, 'input'));
+      setEndDate(formatDate(end, 'input'));
+    }
     setView(view === 'daily' ? 'monthly' : 'daily');
   };
 
-  const formatDate = (date: Date, format: 'day' | 'month') => {
+  const formatDate = (date: Date, format: 'day' | 'month' | 'input'): string => {
     if (format === 'day') {
-      return `${date.getDate()+1}/${date.getMonth() + 1}/${date.getFullYear()}`;
-    } else {
+      return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+    } else if (format === 'month') {
       const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-      return `${monthNames[date.getMonth()+1]} ${date.getFullYear()}`;
+      return `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+    } else {
+      // Formato de entrada para el campo de fecha
+      return date.toISOString().split('T')[0];
     }
   };
 
   return (
     <div className='w-full md:col-span-2 relative lg:h-[70vh] h-[50vh] m-auto p-4 border rounded-lg bg-white'>
-        <h2 className='text-xl font-semibold mb-4'>{view === 'daily' ? 'Ganancias Diarias' : 'Ganancias Mensuales'}</h2>
+      <h2 className='text-xl font-semibold mb-4'>{view === 'daily' ? 'Ganancias Diarias' : 'Ganancias Mensuales'}</h2>
       <button onClick={toggleView} className='mb-4 p-2 bg-blue-600 font-bold text-white rounded'>
         {view === 'daily' ? 'Ver por Mes' : 'Ver por Día'}
       </button>
-      <Bar data={chartData} />
+      {view === 'daily' && (
+        <div className='mb-4'>
+          <label className='block mb-2'>
+            Fecha de inicio:
+            <input
+              type='date'
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className='block w-full p-2 border rounded'
+            />
+          </label>
+          <label className='block mb-2'>
+            Fecha de fin:
+            <input
+              type='date'
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className='block w-full p-2 border rounded'
+            />
+          </label>
+        </div>
+      )}
+      {noData ? (
+        <p className='text-red-500'>No hay datos disponibles para el rango seleccionado.</p>
+      ) : (
+        <Bar data={chartData} />
+      )}
     </div>
   );
 }
