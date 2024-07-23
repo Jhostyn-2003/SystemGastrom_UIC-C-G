@@ -1,8 +1,8 @@
-
+// components/RecentOrders.tsx
 import React, { useState, useEffect } from 'react';
 import { FaExclamationCircle } from 'react-icons/fa';
-import { MdOutlinePendingActions } from "react-icons/md";
-import { formatLocalTime , formatCurrecy } from "@/src/utils";
+import { MdOutlinePendingActions } from 'react-icons/md';
+import { formatLocalTime, formatCurrecy } from '@/src/utils';
 
 const RecentOrders: React.FC = () => {
   const [orders, setOrders] = useState<any[]>([]);
@@ -11,6 +11,9 @@ const RecentOrders: React.FC = () => {
     async function fetchOrders() {
       try {
         const response = await fetch('/api/orders/pending');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
         const data = await response.json();
         setOrders(data);
       } catch (error) {
@@ -19,7 +22,6 @@ const RecentOrders: React.FC = () => {
     }
     fetchOrders();
   }, []);
-
 
   return (
     <div className='w-full col-span-1 relative lg:h-[70vh] h-[50vh] m-auto p-4 border rounded-lg bg-white overflow-scroll'>
