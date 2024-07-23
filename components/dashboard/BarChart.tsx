@@ -148,7 +148,7 @@ export default function BarChart() {
   };
 
   return (
-    <div className='w-full md:col-span-2 relative lg:h-[70vh] h-[50vh] m-auto p-4 border rounded-lg bg-white'>
+    <div className='w-full md:col-span-2 relative h-auto p-4 border rounded-lg bg-white'>
       <h2 className='text-xl font-semibold mb-4'>{view === 'daily' ? 'Ganancias Diarias' : 'Ganancias Mensuales'}</h2>
       <button onClick={toggleView} className='mb-4 p-2 bg-blue-600 font-bold text-white rounded'>
         {view === 'daily' ? 'Ver por Mes' : 'Ver por Día'}
@@ -179,7 +179,9 @@ export default function BarChart() {
         <p className='text-red-500'>No hay datos disponibles para el rango seleccionado.</p>
       ) : (
         <div className={`relative ${view === 'daily' ? 'h-[30vh]' : 'h-[50vh]'}`}>
-          <Bar data={chartData} options={{ maintainAspectRatio: false, responsive: true }} />
+          <div className='w-full h-full'>
+            <Bar data={chartData} options={{ maintainAspectRatio: false, responsive: true }} />
+          </div>
         </div>
       )}
     </div>
