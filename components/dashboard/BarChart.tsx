@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useReducer, useEffect } from 'react';
 import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -19,6 +19,19 @@ ChartJS.register(
   Legend
 );
 
+// Define la interfaz para los datos del gráfico
+interface ChartDataSet {
+  label: string;
+  data: number[];
+  borderColor: string;
+  backgroundColor: string;
+}
+
+interface ChartData {
+  labels: string[];
+  datasets: ChartDataSet[];
+}
+
 interface RevenueEntry {
   date: string;
   total: number;
@@ -29,8 +42,25 @@ interface ChartDataResponse {
   monthlyRevenue: RevenueEntry[];
 }
 
+// Acciones para el reducer
+type Action =
+  | { type: 'SET_DATA'; data: ChartData }
+  | { type: 'SET_NO_DATA'; noData: boolean };
+
+// Reducer para manejar el estado
+const chartDataReducer = (state: ChartData, action: Action): ChartData => {
+  switch (action.type) {
+    case 'SET_DATA':
+      return action.data;
+    case 'SET_NO_DATA':
+      return { labels: [], datasets: [] };
+    default:
+      return state;
+  }
+};
+
 export default function BarChart() {
-  const [chartData, setChartData] = useState({
+  const [chartData, dispatch] = useReducer(chartDataReducer, {
     labels: [],
     datasets: [
       {
@@ -42,10 +72,10 @@ export default function BarChart() {
     ],
   });
 
-  const [view, setView] = useState<'daily' | 'monthly'>('monthly'); // Inicialmente en vista mensual
-  const [startDate, setStartDate] = useState<string>('');
-  const [endDate, setEndDate] = useState<string>('');
-  const [noData, setNoData] = useState<boolean>(false); // Estado para controlar la ausencia de datos
+  const [view, setView] = React.useState<'daily' | 'monthly'>('monthly');
+  const [startDate, setStartDate] = React.useState<string>('');
+  const [endDate, setEndDate] = React.useState<string>('');
+  const [noData, setNoData] = React.useState<boolean>(false);
 
   useEffect(() => {
     async function fetchChartData() {
@@ -58,12 +88,12 @@ export default function BarChart() {
         const data: ChartDataResponse = await response.json();
 
         if (data[`${view}Revenue`].length === 0) {
-          setNoData(true); // Marca que no hay datos
-          setChartData({ labels: [], datasets: [] }); // Limpia el estado del gráfico
+          setNoData(true);
+          dispatch({ type: 'SET_NO_DATA', noData: true });
           return;
         }
 
-        setNoData(false); // Marca que hay datos
+        setNoData(false);
 
         const labels = data[`${view}Revenue`].map((entry) => {
           const date = new Date(entry.date);
@@ -74,14 +104,17 @@ export default function BarChart() {
 
         const values = data[`${view}Revenue`].map((entry) => entry.total);
 
-        setChartData({
-          labels,
-          datasets: [
-            {
-              ...chartData.datasets[0],
-              data: values,
-            },
-          ],
+        dispatch({
+          type: 'SET_DATA',
+          data: {
+            labels,
+            datasets: [
+              {
+                ...chartData.datasets[0],
+                data: values,
+              },
+            ],
+          },
         });
       } catch (error) {
         console.error('Error fetching chart data:', error);
@@ -93,11 +126,9 @@ export default function BarChart() {
 
   const toggleView = () => {
     if (view === 'daily') {
-      // Resetea las fechas al cambiar a vista mensual
       setStartDate('');
       setEndDate('');
     } else {
-      // Configura las fechas por defecto al cambiar a vista diaria
       const today = new Date();
       const start = new Date(today.getFullYear(), today.getMonth(), 1);
       const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
@@ -115,7 +146,6 @@ export default function BarChart() {
       const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
       return `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
     } else {
-      // Formato de entrada para el campo de fecha
       return date.toISOString().split('T')[0];
     }
   };
