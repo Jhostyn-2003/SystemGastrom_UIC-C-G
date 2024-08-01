@@ -2,26 +2,25 @@
 
 import { CldUploadWidget } from "next-cloudinary"
 import Image from "next/image"
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { TbPhotoPlus } from "react-icons/tb"
 
-export default function ImageUploadOrder({ onUpload }: { onUpload: (imageUrl: string) => void }) {
+export default function ImageUploadOrder() {
     const [imageUrl, setImageUrl] = useState('')
 
-    const handleImageUpload = (imageUrl: string) => {
-        setImageUrl(imageUrl); // Actualiza el estado de imageUrl con la URL de la imagen cargada
-        onUpload(imageUrl); // Llama a la función onUpload para pasar la URL al componente padre
-    };
+    const handleUpload = useCallback((secureUrl: string) => {
+        setImageUrl(secureUrl)
+        // Perform any additional actions needed after upload
+    }, [])
 
     return (
-        <CldUploadWidget 
+        <CldUploadWidget
             onSuccess={(result, { widget }) => {
                 if (result.event === 'success') {
                     widget.close()
                     //@ts-ignore
                     const secureUrl = result.info?.secure_url || '';
-                    setImageUrl(secureUrl);
-                    onUpload(secureUrl); // Asegúrate de pasar la URL al componente padre en onSuccess
+                    handleUpload(secureUrl);
                 }
             }}
             uploadPreset="sg0ovu0b"
@@ -32,20 +31,20 @@ export default function ImageUploadOrder({ onUpload }: { onUpload: (imageUrl: st
             {({ open }) => (
                 <>
                    <div className="space-y-2">
-                        
-                        <div 
-                            className="relative cursor-pointer hover:opacity-70 transition p-10 border-neutral-300 flex flex-col justify-center items-center gap-4 text-neutral-600 bg-slate-100 "
+                        <button
+                            className="relative cursor-pointer hover:opacity-70 transition p-10 border-neutral-300 flex flex-col justify-center items-center gap-4 text-neutral-600 bg-slate-100"
                             onClick={() => open()}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    open()
+                                }
+                            }}
                         >
-                            <TbPhotoPlus
-                                size={50}
-                            />
+                            <TbPhotoPlus size={50} />
                             <p className="text-lg font-semibold">Agregar Imagen</p>
 
                             {imageUrl && (
-                                <div
-                                    className="absolute inset-0 w-full h-full"
-                                >
+                                <div className="absolute inset-0 w-full h-full">
                                     <Image
                                         fill
                                         style={{objectFit: 'contain'}}
@@ -54,13 +53,12 @@ export default function ImageUploadOrder({ onUpload }: { onUpload: (imageUrl: st
                                     />
                                 </div>
                             )}
-
-                        </div>
+                        </button>
                     </div>
-                    <input 
+                    <input
                         type='hidden'
                         name='transferImage'
-                        value={imageUrl} 
+                        value={imageUrl}
                     />
                 </>
             )}

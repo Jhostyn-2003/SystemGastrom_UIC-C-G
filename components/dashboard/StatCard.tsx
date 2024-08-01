@@ -5,16 +5,12 @@ interface StatCardProps {
   value: number;
 }
 
-export default function StatCard({ title, value }: StatCardProps) {
-  let Icon;
-  let backgroundColor;
+export default function StatCard({ title, value }: Readonly<StatCardProps>) {
+  let Icon = FiBox;
+  let backgroundColor = '#3182CE'; // Azul
 
   // Selecciona el icono y el color de fondo según el título de la tarjeta
   switch (title) {
-    case "Total Productos":
-      Icon = FiBox;
-      backgroundColor = '#3182CE'; // Azul
-      break;
     case "Total Categorias":
       Icon = FiClipboard;
       backgroundColor = '#F6AD55'; // Naranja
@@ -27,9 +23,6 @@ export default function StatCard({ title, value }: StatCardProps) {
       Icon = FiCheckCircle;
       backgroundColor = '#48BB78'; // Verde
       break;
-    default:
-      Icon = FiBox;
-      backgroundColor = '#3182CE'; // Azul
   }
 
   return (

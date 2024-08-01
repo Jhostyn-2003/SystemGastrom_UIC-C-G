@@ -2,7 +2,6 @@ import ProductSearchForm from "@/components/products/ProductSearchForm";
 import ProductTable from "@/components/products/ProductsTable";
 import Heading from "@/components/ui/Heading";
 import { prisma } from "@/src/lib/prisma";
-import Link from "next/link";
 
 
 async function searchProducts(searchTerm: string) {
@@ -20,7 +19,7 @@ async function searchProducts(searchTerm: string) {
     return products
 }
 
-export default async function SearchPage({ searchParams }: { searchParams: { search: string } }) {
+export default async function SearchPage({ searchParams }: Readonly<{ searchParams: { search: string } }>) {
 
     const products = await searchProducts(searchParams.search)
 

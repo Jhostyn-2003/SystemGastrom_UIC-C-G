@@ -12,7 +12,7 @@ type AdminRouteProps ={
 }
 
 
-export default function AdminRoute({link} : AdminRouteProps) {
+export default function AdminRoute({link} : Readonly<AdminRouteProps>) {
     const pathname = usePathname()
     const isActive = pathname ? pathname.startsWith(link.url) : false;
 

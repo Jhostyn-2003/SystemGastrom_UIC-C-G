@@ -10,7 +10,7 @@ export default function OrdersPage() {
 
     const url = '/admin/orders/api'
     const fetcher = () => fetch(url).then(res => res.json()).then(data => data)
-    const {data, error, isLoading} = useSWR<OrderWithProducts[]>(url, fetcher, {
+    const {data, isLoading} = useSWR<OrderWithProducts[]>(url, fetcher, {
         //cada minuto obtiene nuevo datos en las ordenes 
         refreshInterval: 60000,
         //cada vez que se vuelva a la pagina se actualiza

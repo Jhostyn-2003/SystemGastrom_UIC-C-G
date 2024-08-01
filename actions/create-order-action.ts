@@ -42,7 +42,7 @@ export async function createOrder(data: unknown) {
                 ...orderData,
                 payment: {
                     create: {
-                        transferImage: result.data.transferImage || "", // Asegúrate de incluir transferImage siempre
+                        transferImage: result.data.transferImage ?? "", // Asegúrate de incluir transferImage siempre
                         description: result.data.paymentDescription || "", // Asegúrate de incluir description siempre
                     },
                 },
