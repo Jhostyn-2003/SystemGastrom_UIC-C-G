@@ -37,8 +37,8 @@ interface RevenueEntry {
 }
 
 interface ChartDataResponse {
-  dailyRevenue: RevenueEntry[];
-  monthlyRevenue: RevenueEntry[];
+  dailyRevenue?: RevenueEntry[];
+  monthlyRevenue?: RevenueEntry[];
 }
 
 type Action =
@@ -77,14 +77,21 @@ export default function BarChart() {
   useEffect(() => {
     async function fetchChartData() {
       try {
-        let url = view === 'daily'
+        const url = view === 'daily'
             ? `/api/revenue/${view}?startDate=${startDate}&endDate=${endDate}`
             : `/api/revenue/${view}`;
 
         const response = await fetch(url);
-        const data: ChartDataResponse = await response.json();
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
 
-        if (data[`${view}Revenue`].length === 0) {
+        const data: ChartDataResponse = await response.json();
+        console.log('Data fetched:', data);
+
+        const revenue = data[`${view}Revenue`];
+
+        if (!revenue || revenue.length === 0) {
           setNoData(true);
           dispatch({ type: 'SET_NO_DATA', noData: true });
           return;
@@ -92,14 +99,14 @@ export default function BarChart() {
 
         setNoData(false);
 
-        const labels = data[`${view}Revenue`].map((entry) => {
+        const labels = revenue.map((entry) => {
           const date = new Date(entry.date);
           return view === 'daily'
               ? formatDate(date, 'day')
               : formatDate(date, 'month');
         });
 
-        const values = data[`${view}Revenue`].map((entry) => entry.total);
+        const values = revenue.map((entry) => entry.total);
 
         dispatch({
           type: 'SET_DATA',
@@ -107,19 +114,22 @@ export default function BarChart() {
             labels,
             datasets: [
               {
-                ...chartData.datasets[0],
+                label: 'Ganancia $',
                 data: values,
+                borderColor: 'rgb(53, 162, 235)',
+                backgroundColor: 'rgba(53, 162, 235, 0.4)',
               },
             ],
           },
         });
       } catch (error) {
         console.error('Error fetching chart data:', error);
+        setNoData(true);
       }
     }
 
     fetchChartData();
-  }, [view, startDate, endDate, chartData.datasets]);
+  }, [view, startDate, endDate]);
 
   const toggleView = () => {
     if (view === 'daily') {
@@ -147,9 +157,24 @@ export default function BarChart() {
     }
   };
 
+  const options = {
+    maintainAspectRatio: false,
+    responsive: true,
+    scales: {
+      x: {
+        beginAtZero: true,
+      },
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
   return (
-      <div className='w-full md:col-span-2 relative h-auto p-4 border rounded-lg bg-white'>
-        <h2 className='text-xl font-semibold mb-4'>{view === 'daily' ? 'Ganancias Diarias' : 'Ganancias Mensuales'}</h2>
+      <div className='w-full md:col-span-2 p-4 border rounded-lg bg-white shadow-md flex flex-col h-120'> {/* Ajusta la altura aquí */}
+        <h2 className='text-xl font-semibold mb-4'>
+          {view === 'daily' ? 'Ganancias Diarias' : 'Ganancias Mensuales'}
+        </h2>
         <button onClick={toggleView} className='mb-4 p-2 bg-blue-600 font-bold text-white rounded'>
           {view === 'daily' ? 'Ver por Mes' : 'Ver por Día'}
         </button>
@@ -161,27 +186,25 @@ export default function BarChart() {
                     type='date'
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className='block w-full p-2 border rounded'
+                    className='border rounded p-2 ml-2'
                 />
               </label>
-              <label className='block mb-2'>
+              <label className='block'>
                 Fecha de fin:
                 <input
                     type='date'
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className='block w-full p-2 border rounded'
+                    className='border rounded p-2 ml-2'
                 />
               </label>
             </div>
         )}
         {noData ? (
-            <p className='text-red-500'>No hay datos disponibles para el rango seleccionado.</p>
+            <p className='text-red-500'>No hay datos disponibles para mostrar.</p>
         ) : (
-            <div className={`relative ${view === 'daily' ? 'h-[30vh]' : 'h-[50vh]'}`}>
-              <div className='w-full h-full'>
-                <Bar data={chartData} options={{ maintainAspectRatio: false, responsive: true }} />
-              </div>
+            <div className='flex-1'>
+              <Bar data={chartData} options={options} />
             </div>
         )}
       </div>

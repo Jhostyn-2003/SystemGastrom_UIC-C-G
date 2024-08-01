@@ -1,4 +1,3 @@
-// pages/api/dashboard/stats.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/src/lib/prisma';
 

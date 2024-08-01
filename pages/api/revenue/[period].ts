@@ -13,18 +13,25 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ error: 'Start date and end date are required for daily view' });
       }
 
+      const start = new Date(startDate as string);
+      const end = new Date(endDate as string);
+
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        return res.status(400).json({ error: 'Invalid date format' });
+      }
+
       revenueData = await prisma.$queryRaw`
-        SELECT 
+        SELECT
           DATE_TRUNC('day', "date") as date,
           SUM("total") as total
         FROM "Order"
-        WHERE "status" = true AND "date" BETWEEN ${new Date(startDate as string)} AND ${new Date(endDate as string)}
+        WHERE "status" = true AND "date" BETWEEN ${start} AND ${end}
         GROUP BY DATE_TRUNC('day', "date")
         ORDER BY date;
       `;
     } else if (period === 'monthly') {
       revenueData = await prisma.$queryRaw`
-        SELECT 
+        SELECT
           DATE_TRUNC('month', "date") as date,
           SUM("total") as total
         FROM "Order"
@@ -35,6 +42,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } else {
       return res.status(400).json({ error: 'Invalid period parameter' });
     }
+
+    console.log('Revenue Data:', revenueData);
 
     res.status(200).json({ [`${period}Revenue`]: revenueData });
   } catch (error) {
