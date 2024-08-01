@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { FaExclamationCircle } from 'react-icons/fa';
 import { MdOutlinePendingActions } from "react-icons/md";
@@ -17,9 +16,10 @@ const RecentOrders: React.FC = () => {
         console.error('Error fetching orders:', error);
       }
     }
-    fetchOrders();
+    fetchOrders().then(() =>
+        console.log('Orders fetched')
+    );
   }, []);
-
 
   return (
     <div className='w-full col-span-1 relative lg:h-[70vh] h-[50vh] m-auto p-4 border rounded-lg bg-white overflow-scroll'>
@@ -31,9 +31,9 @@ const RecentOrders: React.FC = () => {
         </div>
       ) : (
         <ul>
-          {orders.map((order, id) => (
+          {orders.map((order) => (
             <li
-              key={id}
+              key={order.id}
               className='bg-gray-50 hover:bg-gray-100 rounded-lg my-3 p-2 flex items-center cursor-pointer'
             >
               <div className='bg-purple-100 rounded-lg p-3'>
