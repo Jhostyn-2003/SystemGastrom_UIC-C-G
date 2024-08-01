@@ -1,19 +1,18 @@
 import ProductCard from "@/components/products/ProductCard"
 import Heading from "@/components/ui/Heading"
-import { prisma } from "@/src/lib/prisma"
+import {prisma} from "@/src/lib/prisma"
 
 async function getProducts(category : string){
-  const products = await prisma.product.findMany({
-    where: {
-      category: {
-        slug: category
-      }
-    }
-  })
-  return products
+    return prisma.product.findMany({
+        where: {
+            category: {
+                slug: category
+            }
+        }
+    });
 }
 
-export default async function OrderPage({params} : {params: {category: string}}) {
+export default async function OrderPage({params} : Readonly<{ params: { category: string } }>) {
   const products = await getProducts(params.category)
   
 

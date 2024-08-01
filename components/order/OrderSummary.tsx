@@ -72,16 +72,17 @@ export default function OrderSummary() {
             return;
         }
 
+        // @ts-ignore
         const data = {
             // @ts-ignore
-            name: event.currentTarget.name.value,
+            name: event.currentTarget.name.value || "",
             total,
             order,
             paymentMethod,
             transferImage: paymentMethod === "transferencia" ? transferImage : "",
             paymentDescription,
             table: selectedTable,
-            chatId: selectedTable !== 'Ninguna' ? chatId : null,
+            chatId: selectedTable !== 'Ninguna' ? chatId : "",
         };
 
         const result = OrderSchema.safeParse(data);
