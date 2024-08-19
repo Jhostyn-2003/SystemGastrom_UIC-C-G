@@ -6,13 +6,12 @@ import Image from "next/image"
 import { useState } from "react"
 import { TbPhotoPlus } from "react-icons/tb"
 
-
 export default function ImageUpload({image}: {image: string | undefined}) {
 
     const [imageUrl, setImageUrl] = useState('')
 
     return (
-        <CldUploadWidget 
+        <CldUploadWidget
             onSuccess={(result, {widget}) => {
                 if(result.event === 'success'){
                     widget.close()
@@ -20,17 +19,19 @@ export default function ImageUpload({image}: {image: string | undefined}) {
                     setImageUrl(result.info?.secure_url)
                 }
             }}
-            //codigo de la imagen 
             uploadPreset="sg0ovu0b"
             options={{
-                maxFiles: 1
+                maxFiles: 1,
+                sources: ['local'], // Permitir solo la carga de archivos locales
+                resourceType: 'image', // Permitir solo la carga de imágenes
+                clientAllowedFormats: ['png', 'jpg', 'jpeg'], // Permitir solo estos formatos de imagen
             }}
         >
             {({open}) => (
                 <>
                     <div className="space-y-2">
                         <label className="text-slate-800">Imagen Producto</label>
-                        <div 
+                        <div
                             className="relative cursor-pointer hover:opacity-70 transition p-10 border-neutral-300 flex flex-col justify-center items-center gap-4 text-neutral-600 bg-slate-100 "
                             onClick={() => open()}
                         >
@@ -61,7 +62,7 @@ export default function ImageUpload({image}: {image: string | undefined}) {
                             <label>Imagen Actual: </label>
                             <div className="relative w-64 h-64">
                                 <Image
-                                    fill 
+                                    fill
                                     src={getImagePath(image)}
                                     alt="Imagen Producto"
                                     style={{objectFit: 'contain'}}
@@ -70,11 +71,11 @@ export default function ImageUpload({image}: {image: string | undefined}) {
                         </div>
                     )}
 
-                    <input 
+                    <input
                         type='hidden'
                         name='image'
-                        //para verificar si la imagen existe 
-                        defaultValue={imageUrl ? imageUrl : image} 
+                        //para verificar si la imagen existe
+                        defaultValue={imageUrl ? imageUrl : image}
                     />
                 </>
             )}
