@@ -120,7 +120,7 @@ export default function BarChart() {
           // Mantener la vista mensual normal
           labels = revenue.map((entry) => {
             const date = new Date(entry.date);
-            return view === 'monthly' ? `${monthNames[date.getUTCMonth()]} ${date.getUTCFullYear()}` : formatDate(date, view);
+            return view === 'monthly' ? `${monthNames[date.getUTCMonth()]} ${date.getUTCFullYear()}` : formatDate(date, 'day');
           });
           values = revenue.map((entry) => entry.total);
         }
