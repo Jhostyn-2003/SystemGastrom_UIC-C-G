@@ -23,9 +23,12 @@ export default function PieChartComponent() {
       }
     }
 
-    fetchData().then(r =>
+    //Para mostrar los datos por consola
+    fetchData();
+   /* fetchData().then(r =>
         console.log('PieChartComponent data fetched:', chartData)
-    );
+    );*/
+
   }, [chartData]);
 
   return (

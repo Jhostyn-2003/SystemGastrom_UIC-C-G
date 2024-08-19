@@ -74,6 +74,8 @@ export default function BarChart() {
   const [endDate, setEndDate] = React.useState<string>('');
   const [noData, setNoData] = React.useState<boolean>(false);
 
+  const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+
   useEffect(() => {
     async function fetchChartData() {
       try {
@@ -87,7 +89,6 @@ export default function BarChart() {
         }
 
         const data: ChartDataResponse = await response.json();
-        console.log('Data fetched:', data);
 
         const revenue = data[`${view}Revenue`];
 
@@ -99,14 +100,30 @@ export default function BarChart() {
 
         setNoData(false);
 
-        const labels = revenue.map((entry) => {
-          const date = new Date(entry.date);
-          return view === 'daily'
-              ? formatDate(date, 'day')
-              : formatDate(date, 'month');
-        });
+        let labels: string[] = [];
+        let values: number[] = [];
 
-        const values = revenue.map((entry) => entry.total);
+        if (view === 'monthly' && revenue.length > 24) {
+          // Agrupar por año si hay más de 24 meses de datos
+          const yearlyRevenue: { [key: string]: number } = {};
+          revenue.forEach((entry) => {
+            const year = new Date(entry.date).getUTCFullYear();
+            if (!yearlyRevenue[year]) {
+              yearlyRevenue[year] = 0;
+            }
+            yearlyRevenue[year] += entry.total;
+          });
+
+          labels = Object.keys(yearlyRevenue).map((year) => year.toString());
+          values = Object.values(yearlyRevenue);
+        } else {
+          // Mantener la vista mensual normal
+          labels = revenue.map((entry) => {
+            const date = new Date(entry.date);
+            return view === 'monthly' ? `${monthNames[date.getUTCMonth()]} ${date.getUTCFullYear()}` : formatDate(date, view);
+          });
+          values = revenue.map((entry) => entry.total);
+        }
 
         dispatch({
           type: 'SET_DATA',
@@ -148,10 +165,9 @@ export default function BarChart() {
 
   const formatDate = (date: Date, format: 'day' | 'month' | 'input'): string => {
     if (format === 'day') {
-      return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+      return date.toISOString().split('T')[0];
     } else if (format === 'month') {
-      const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-      return `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+      return date.toISOString().slice(0, 7);
     } else {
       return date.toISOString().split('T')[0];
     }
@@ -171,7 +187,7 @@ export default function BarChart() {
   };
 
   return (
-      <div className='w-full md:col-span-2 p-4 border rounded-lg bg-white shadow-md flex flex-col h-120'> {/* Ajusta la altura aquí */}
+      <div className='w-full md:col-span-2 p-4 border rounded-lg bg-white shadow-md flex flex-col h-120'>
         <h2 className='text-xl font-semibold mb-4'>
           {view === 'daily' ? 'Ganancias Diarias' : 'Ganancias Mensuales'}
         </h2>
