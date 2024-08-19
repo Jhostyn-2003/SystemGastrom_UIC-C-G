@@ -32,6 +32,9 @@ const ImageUploadOrder: React.FC<ImageUploadOrderProps> = ({ onUpload }) => {
             uploadPreset="sg0ovu0b"
             options={{
                 maxFiles: 1,
+                sources: ['local'], // Permitir solo la carga de archivos locales
+                resourceType: 'image', // Permitir solo la carga de imágenes
+                clientAllowedFormats: ['png', 'jpg', 'jpeg'], // Permitir solo estos formatos de imagen
             }}
         >
             {({ open }) => (
