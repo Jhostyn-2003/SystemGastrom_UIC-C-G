@@ -20,10 +20,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ error: 'Invalid date format' });
       }
 
+      // Ajusta endDate para incluir todo el día
+      end.setHours(23, 59, 59, 999);
+
       revenueData = await prisma.$queryRaw`
         SELECT
-          DATE_TRUNC('day', "date") as date,
-          SUM("total") as total
+          DATE_TRUNC('day', "date") AS date,
+          SUM("total") AS total
         FROM "Order"
         WHERE "status" = true AND "date" BETWEEN ${start} AND ${end}
         GROUP BY DATE_TRUNC('day', "date")
@@ -32,8 +35,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } else if (period === 'monthly') {
       revenueData = await prisma.$queryRaw`
         SELECT
-          DATE_TRUNC('month', "date") as date,
-          SUM("total") as total
+          DATE_TRUNC('month', "date") AS date,
+          SUM("total") AS total
         FROM "Order"
         WHERE "status" = true
         GROUP BY DATE_TRUNC('month', "date")
@@ -43,11 +46,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).json({ error: 'Invalid period parameter' });
     }
 
-    console.log('Revenue Data:', revenueData);
+    // Formatear la fecha en el formato YYYY-MM-DD
+    const formattedRevenueData = revenueData.map((entry: { date: Date, total: number }) => ({
+      date: entry.date.toISOString().split('T')[0],
+      total: entry.total
+    }));
 
-    res.status(200).json({ [`${period}Revenue`]: revenueData });
+    //console.log('Revenue Data:', formattedRevenueData);
+
+    res.status(200).json({ [`${period}Revenue`]: formattedRevenueData });
   } catch (error) {
-    console.error('Error fetching revenue data:', error);
+   // console.error('Error fetching revenue data:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }

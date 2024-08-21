@@ -1,5 +1,7 @@
 import React, { useReducer, useEffect } from 'react';
 import { Bar } from 'react-chartjs-2';
+import { z } from 'zod';
+import { toast } from 'react-toastify';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -56,6 +58,11 @@ const chartDataReducer = (state: ChartData, action: Action): ChartData => {
   }
 };
 
+const dateSchema = z.object({
+  startDate: z.string().min(1, "Fecha de inicio es requerida"),
+  endDate: z.string().min(1, "Fecha de fin es requerida")
+});
+
 export default function BarChart() {
   const [chartData, dispatch] = useReducer(chartDataReducer, {
     labels: [],
@@ -89,7 +96,6 @@ export default function BarChart() {
         }
 
         const data: ChartDataResponse = await response.json();
-
         const revenue = data[`${view}Revenue`];
 
         if (!revenue || revenue.length === 0) {
@@ -103,25 +109,27 @@ export default function BarChart() {
         let labels: string[] = [];
         let values: number[] = [];
 
-        if (view === 'monthly' && revenue.length > 24) {
-          // Agrupar por año si hay más de 24 meses de datos
-          const yearlyRevenue: { [key: string]: number } = {};
+        if (view === 'monthly') {
+          // Agrupar por mes y año en formato UTC
+          const monthlyRevenue: { [key: string]: number } = {};
           revenue.forEach((entry) => {
-            const year = new Date(entry.date).getUTCFullYear();
-            if (!yearlyRevenue[year]) {
-              yearlyRevenue[year] = 0;
+            const date = new Date(entry.date);
+            const key = `${date.getUTCFullYear()}-${date.getUTCMonth() + 1}`; // YYYY-MM
+            if (!monthlyRevenue[key]) {
+              monthlyRevenue[key] = 0;
             }
-            yearlyRevenue[year] += entry.total;
+            monthlyRevenue[key] += entry.total;
           });
 
-          labels = Object.keys(yearlyRevenue).map((year) => year.toString());
-          values = Object.values(yearlyRevenue);
-        } else {
-          // Mantener la vista mensual normal
-          labels = revenue.map((entry) => {
-            const date = new Date(entry.date);
-            return view === 'monthly' ? `${monthNames[date.getUTCMonth()]} ${date.getUTCFullYear()}` : formatDate(date, 'day');
+          labels = Object.keys(monthlyRevenue).map((key) => {
+            const [year, month] = key.split('-').map(Number);
+            return `${monthNames[month - 1]} ${year}`;
           });
+
+          values = Object.values(monthlyRevenue);
+        } else {
+          // Vista diaria
+          labels = revenue.map((entry) => formatDate(new Date(entry.date), 'day'));
           values = revenue.map((entry) => entry.total);
         }
 
@@ -154,8 +162,8 @@ export default function BarChart() {
       setEndDate('');
     } else {
       const today = new Date();
-      const start = new Date(today.getFullYear(), today.getMonth(), 1);
-      const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      const start = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1));
+      const end = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + 1, 0));
 
       setStartDate(formatDate(start, 'input'));
       setEndDate(formatDate(end, 'input'));
@@ -163,7 +171,28 @@ export default function BarChart() {
     setView(view === 'daily' ? 'monthly' : 'daily');
   };
 
+  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedEndDate = e.target.value;
+
+    // Validar las fechas
+    const validationResult = dateSchema.safeParse({
+      startDate,
+      endDate: selectedEndDate
+    });
+
+    if (validationResult.success) {
+      if (selectedEndDate < startDate) {
+        toast.error("La fecha de fin no puede ser menor que la fecha de inicio.");
+        return;
+      }
+      setEndDate(selectedEndDate);
+    } else {
+      toast.error(validationResult.error.issues.map(issue => issue.message).join(', '));
+    }
+  };
+
   const formatDate = (date: Date, format: 'day' | 'month' | 'input'): string => {
+    // La fecha ya está en UTC, solo formatear
     if (format === 'day') {
       return date.toISOString().split('T')[0];
     } else if (format === 'month') {
@@ -202,27 +231,24 @@ export default function BarChart() {
                     type='date'
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className='border rounded p-2 ml-2'
+                    className='block w-full p-2 border border-gray-300 rounded'
                 />
               </label>
-              <label className='block'>
+              <label className='block mb-2'>
                 Fecha de fin:
                 <input
                     type='date'
                     value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className='border rounded p-2 ml-2'
+                    onChange={handleEndDateChange}
+                    className='block w-full p-2 border border-gray-300 rounded'
                 />
               </label>
             </div>
         )}
-        {noData ? (
-            <p className='text-red-500'>No hay datos disponibles para mostrar.</p>
-        ) : (
-            <div className='flex-1'>
-              <Bar data={chartData} options={options} />
-            </div>
-        )}
+        <div className='flex-1'>
+          <Bar data={chartData} options={options} />
+        </div>
+        {noData && <p className='text-red-500 mt-4'>No hay datos disponibles para mostrar.</p>}
       </div>
   );
 }
