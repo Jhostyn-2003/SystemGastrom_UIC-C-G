@@ -16,7 +16,17 @@ export const OrderSchema = z.object({
     paymentDescription: z.string().min(1, 'La descripción de Pago es requerida'),
     chatId: z.string().optional(), // Agregar el campo chatId
     table: z.string().optional() // Agregar el campo table
-})
+}).refine((data) => {
+    // Valida si el método de pago es "transferencia"
+    if (data.paymentMethod === 'transferencia') {
+        // Aquí es donde combinamos las validaciones: requerir y mínimo 1 caracter
+        return data.transferImage && data.transferImage.trim().length > 0;
+    }
+    return true;
+}, {
+    message: 'La Imagen es Obligatoria cuando el método de pago es transferencia',
+    path: ['transferImage'],
+});
 
 export const OrderIdSchema = z.object({
     orderId: z.string()

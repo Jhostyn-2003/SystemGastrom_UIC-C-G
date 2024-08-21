@@ -19,6 +19,10 @@ export default function OrderSummary() {
     const [selectedTable, setSelectedTable] = useState<string | null>(null);
     const [chatId, setChatId] = useState<string>("");
 
+    //Para el boton de envio solo una vez dar clic
+    const [isSubmitting, setIsSubmitting] = useState(false); // Estado para controlar la desactivación del botón
+
+
     const total = useMemo(() => {
         let totalAmount = 0;
         let entréeCount = 0;
@@ -50,25 +54,38 @@ export default function OrderSummary() {
         return totalAmount;
     }, [order]);
 
-    const handleImageUpload = (imageUrl: string) => {
+    //Actualizacion de la carga de las imagenes
+   /* const handleImageUpload = (imageUrl: string) => {
         setTransferImage(imageUrl);
+    };*/
+    const handleImageUpload = (imageUrl: string) => {
+        if (imageUrl && imageUrl.trim().length > 0) {
+            setTransferImage(imageUrl);
+        }
     };
 
     const handleCreateOrder = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        //Para el btn de pedido
+        if (isSubmitting) return; // Evitar múltiples envíos si ya se está procesando
+
+        setIsSubmitting(true); // Desactivar el botón al iniciar el envío
 
         if (!paymentMethod) {
             toast.error("Seleccione un método de pago.");
+            setIsSubmitting(false); // Reactivar el botón si hay error
             return;
         }
 
         if (!selectedTable) {
             toast.error("Seleccione una mesa.");
+            setIsSubmitting(false); // Reactivar el botón si hay error
             return;
         }
 
         if ((selectedTable === 'Mesa 1' || selectedTable === 'Mesa 2' || selectedTable === 'Mesa 3') && !chatId) {
             toast.error("Ingrese el ID de chat para la mesa seleccionada.");
+            setIsSubmitting(false); // Reactivar el botón si hay error
             return;
         }
 
@@ -91,6 +108,7 @@ export default function OrderSummary() {
             result.error.issues.forEach((issue) => {
                 toast.error(issue.message);
             });
+            setIsSubmitting(false); // Reactivar el botón si hay error
             return;
         }
 
@@ -100,6 +118,7 @@ export default function OrderSummary() {
             response.errors.forEach((issue) => {
                 toast.error(issue.message);
             });
+            setIsSubmitting(false); // Reactivar el botón si hay error
             return;
         }
 
@@ -115,6 +134,7 @@ export default function OrderSummary() {
         setPaymentDescription("");
         setSelectedTable(null);
         setChatId("");
+        setIsSubmitting(false); // Reactivar el botón si hay error
     };
 
     const sendOrderToTelegram = async (data: any, table: string) => {
@@ -247,7 +267,8 @@ export default function OrderSummary() {
                         <input
                             type="submit"
                             className="py-2 rounded uppercase text-white bg-black w-full text-center cursor-pointer"
-                            value="Confirmar Pedido"
+                            value={isSubmitting ? "Enviando..." : "Confirmar Pedido"}
+                            disabled={isSubmitting} // Desactiva el botón si se está enviando
                         />
                     </form>
                 </div>

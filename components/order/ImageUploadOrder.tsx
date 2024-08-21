@@ -41,6 +41,7 @@ const ImageUploadOrder: React.FC<ImageUploadOrderProps> = ({ onUpload }) => {
                 <>
                     <div className="space-y-2">
                         <button
+                            type="button"
                             className="relative cursor-pointer hover:opacity-70 transition p-10 border-neutral-300 flex flex-col justify-center items-center gap-4 text-neutral-600 bg-slate-100"
                             onClick={() => open()}
                             onKeyDown={(e) => {
@@ -49,14 +50,14 @@ const ImageUploadOrder: React.FC<ImageUploadOrderProps> = ({ onUpload }) => {
                                 }
                             }}
                         >
-                            <TbPhotoPlus size={50} />
+                            <TbPhotoPlus size={50}/>
                             <p className="text-lg font-semibold">Agregar Imagen</p>
 
                             {imageUrl && (
                                 <div className="absolute inset-0 w-full h-full">
                                     <Image
                                         fill
-                                        style={{ objectFit: "contain" }}
+                                        style={{objectFit: "contain"}}
                                         src={imageUrl}
                                         alt="Imagen de Producto"
                                     />
@@ -64,7 +65,7 @@ const ImageUploadOrder: React.FC<ImageUploadOrderProps> = ({ onUpload }) => {
                             )}
                         </button>
                     </div>
-                    <input type="hidden" name="transferImage" value={imageUrl} />
+                    <input type="hidden" name="transferImage" value={imageUrl}/>
                 </>
             )}
         </CldUploadWidget>
