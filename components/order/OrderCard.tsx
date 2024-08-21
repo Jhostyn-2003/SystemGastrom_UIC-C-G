@@ -26,6 +26,7 @@ export default function OrderCard({ order }: OrderCardProps) {
     const [modalOpen, setModalOpen] = React.useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
     const [selectedReasons, setSelectedReasons] = React.useState<string[]>([]);
+    const [isCompleting, setIsCompleting] = React.useState(false); // Estado para controlar el envío de completar orden
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -68,6 +69,11 @@ export default function OrderCard({ order }: OrderCardProps) {
 
     const handleCompleteOrder = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+
+        if (isCompleting) return; // Evitar múltiples envíos
+
+        setIsCompleting(true); // Desactivar el botón
+
         const formData = new FormData(event.currentTarget);
         completeOrder(formData);
         toast.success('Orden marcada como completada');
@@ -86,6 +92,7 @@ export default function OrderCard({ order }: OrderCardProps) {
                 }),
             });
         }
+        setIsCompleting(false); // Reactivar el botón después de completar
     };
 
     // Dentro del método handleDeleteWithReasons en OrderCard.tsx
@@ -162,7 +169,7 @@ export default function OrderCard({ order }: OrderCardProps) {
                 <DialogTitle id="responsive-dialog-title">Detalles del Pago</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Método de Pago: {order.payment ? (order.payment.description ?? 'Sin descripción') : 'No especificado'}
+                        Descripción de Pago: {order.payment ? (order.payment.description ?? 'Sin descripción') : 'No especificado'}
                     </DialogContentText>
                     {order.payment?.transferImage && (
                         <img
@@ -188,7 +195,8 @@ export default function OrderCard({ order }: OrderCardProps) {
                 <input
                     type="submit"
                     className="bg-sky-900 hover:bg-indigo-800 text-white w-full mt-5 p-3 uppercase font-bold cursor-pointer"
-                    value='Marcar Orden Completada'
+                    value={isCompleting ? 'Marcando como Completada...' : 'Marcar Orden Completada'}
+                    disabled={isCompleting} // Desactivar el botón si se está enviando
                 />
             </form>
             <form onSubmit={handleDeleteOrder}>
