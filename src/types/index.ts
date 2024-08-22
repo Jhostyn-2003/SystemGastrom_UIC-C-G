@@ -4,6 +4,7 @@ import { Order, OrderProducts, Product, Payment } from '@prisma/client';
 export type OrderItem = Pick<Product, 'id' | 'name' | 'price' | 'categoryId'> & {
     quantity: number;
     subtotal: number;
+    stock: number | null;
 }
 
 export type OrderWithProducts = Order & {

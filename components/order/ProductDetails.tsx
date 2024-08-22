@@ -27,7 +27,7 @@ export default function ProductDetails({item}: ProductDetailsProps) {
     const disebleIncreaseButton = useMemo(() => item.quantity === MAX_ITEMS || item.stock === 0, [item])
 
     // Handler for increasing quantity and updating stock
-    const handleIncreaseQuantity = () => {
+    /*const handleIncreaseQuantity = () => {
         if (item.quantity < MAX_ITEMS && item.stock > 0) {
             increaseQuantity(item.id)
             // Optionally update the stock in your store or state management
@@ -40,7 +40,23 @@ export default function ProductDetails({item}: ProductDetailsProps) {
             decreaseQuantity(item.id)
             // Optionally update the stock in your store or state management
         }
+    }*/
+    const handleIncreaseQuantity = () => {
+        // Asegúrate de que item.stock sea un número válido
+        const stock = item.stock ?? 0;
+        if (item.quantity < MAX_ITEMS && stock > 0) {
+            increaseQuantity(item.id);
+            // Opcionalmente actualiza el stock en tu store o gestión de estado
+        }
     }
+
+    const handleDecreaseQuantity = () => {
+        if (item.quantity > MIN_ITEMS) {
+            decreaseQuantity(item.id);
+            // Opcionalmente actualiza el stock en tu store o gestión de estado
+        }
+    }
+
 
     return (
         <div className="shadow space-y-1 p-4 bg-white  border-t border-gray-200 ">
