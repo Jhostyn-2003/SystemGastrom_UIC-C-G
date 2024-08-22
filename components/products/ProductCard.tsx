@@ -28,7 +28,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 <p className="mt-5 font-black text-4xl text-amber-500">
                     {formatCurrecy(product.price)}
                 </p>
-                {product.stock > 0 &&
+                {product.stock !== null && product.stock > 0 &&
                     <p className="mt-2 text-xl font-bold bg-green-200 rounded-lg p-2">Stock: {product.stock}</p>
                 }
                 <AddProductButton
