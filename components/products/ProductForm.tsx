@@ -79,7 +79,7 @@ export default async function ProductForm({product}: ProductFormProps) {
                     name="stock"
                     className="block w-full p-3 bg-slate-100"
                     placeholder="Stock del Producto"
-                    defaultValue={product?.stock}
+                    defaultValue={product?.stock ?? ''}
                 />
             </div>
 
