@@ -9,7 +9,9 @@ import { OrderSchema } from "@/src/schema";
 import { toast } from "react-toastify";
 import ImageUploadOrder from './ImageUploadOrder';
 
+
 export default function OrderSummary() {
+
     const order = useStore(state => state.order);
     const clearOrder = useStore(state => state.clearOrder);
 
@@ -121,6 +123,22 @@ export default function OrderSummary() {
             setIsSubmitting(false); // Reactivar el botón si hay error
             return;
         }
+
+        await Promise.all(order.map(async (item) => {
+            if (item.stock !== null) {
+                const response = await fetch(`/api/update-stock/${item.id}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ quantity: -item.quantity })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Error al actualizar el stock para el producto ${item.id}`);
+                }
+            }
+        }));
 
         toast.success("Pedido creado con éxito");
 

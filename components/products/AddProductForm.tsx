@@ -21,6 +21,7 @@ export default function AddProductForm({ children }: { children: React.ReactNode
             name: formData.get('name'),
             price: formData.get('price'),
             categoryId: formData.get('categoryId'),
+            stock: formData.get('stock'),
             image: formData.get('image'),
         };
 

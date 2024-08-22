@@ -30,7 +30,7 @@ export default async function ProductForm({product}: ProductFormProps) {
                     name="name"
                     className="block w-full p-3 bg-slate-100"
                     placeholder="Nombre Producto"
-                    defaultValue = {product?.name}
+                    defaultValue={product?.name}
                 />
             </div>
 
@@ -44,7 +44,7 @@ export default async function ProductForm({product}: ProductFormProps) {
                     name="price"
                     className="block w-full p-3 bg-slate-100"
                     placeholder="Precio Producto"
-                    defaultValue = {product?.price}
+                    defaultValue={product?.price}
                 />
             </div>
 
@@ -57,7 +57,7 @@ export default async function ProductForm({product}: ProductFormProps) {
                     className="block w-full p-3 bg-slate-100"
                     id="categoryId"
                     name="categoryId"
-                    defaultValue = {product?.categoryId}
+                    defaultValue={product?.categoryId}
                 >
                     <option value="">-- Seleccione --</option>
                     {categories.map(category => (
@@ -67,6 +67,20 @@ export default async function ProductForm({product}: ProductFormProps) {
                         >{category.name}</option>
                     ))}
                 </select>
+            </div>
+
+            <div className="space-y-2">
+                <label
+                    className="text-slate-800"
+                    htmlFor="stock"
+                >Stock:</label>
+                <input
+                    id="stock"
+                    name="stock"
+                    className="block w-full p-3 bg-slate-100"
+                    placeholder="Stock del Producto"
+                    defaultValue={product?.stock}
+                />
             </div>
 
             <ImageUpload

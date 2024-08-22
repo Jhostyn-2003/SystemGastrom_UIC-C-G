@@ -28,6 +28,7 @@ export default function EditProductForm({ children }: { children: React.ReactNod
             name: formData.get('name'),
             price: formData.get('price'),
             categoryId: formData.get('categoryId'),
+            stock: formData.get('stock'),
             image: formData.get('image'),
         };
 

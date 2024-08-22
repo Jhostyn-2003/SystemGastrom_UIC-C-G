@@ -1,5 +1,3 @@
-
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,51 +7,50 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Category{
-  id  Int @id @default(autoincrement())
-  name String
-  slug String
-  products Product[] 
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String
+  slug     String
+  products Product[]
 }
 
-model Product{
-  id  Int @id @default(autoincrement())
-  name String
-  price Float 
-  image String 
+model Product {
+  id         Int             @id @default(autoincrement())
+  name       String
+  price      Float
+  image      String
+  stock      Int? // Campo opcional para el stock
   categoryId Int
-  category Category @relation(fields: [categoryId], references: [id])
+  category   Category        @relation(fields: [categoryId], references: [id])
   orderItems OrderProducts[]
 }
 
 model Order {
-  id Int @id @default(autoincrement())
-  name String
-  total Float
-  date DateTime @default(now())
-  status Boolean @default(false)
-  orderReadyAt DateTime?
+  id            Int             @id @default(autoincrement())
+  name          String
+  total         Float
+  date          DateTime        @default(now())
+  status        Boolean         @default(false)
+  orderReadyAt  DateTime?
   orderProducts OrderProducts[]
-  payment Payment?
-  chatID String?  // Campo opcional para el ID de chat
-  table String?  // Nuevo campo opcional para la mesa
+  payment       Payment?
+  chatID        String? // Campo opcional para el ID de chat
+  table         String? // Nuevo campo opcional para la mesa
 }
 
-
-
-model OrderProducts{
-  id Int @id @default(autoincrement())
-  orderId Int 
-  order Order @relation(fields: [orderId], references: [id])
+model OrderProducts {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id])
   productId Int
-  product Product @relation(fields: [productId], references: [id])
-  quantity Int
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
 }
 
 model Payment {
-  id              Int       @id @default(autoincrement())
-  orderId         Int       @unique
-  order           Order     @relation(fields: [orderId], references: [id])
-  transferImage   String?    // Nombre o ruta de la imagen de la transferencia
-  description     String?   // Descripción opcional del método de pago
+  id            Int     @id @default(autoincrement())
+  orderId       Int     @unique
+  order         Order   @relation(fields: [orderId], references: [id])
+  transferImage String? // Nombre o ruta de la imagen de la transferencia
+  description   String? // Descripción opcional del método de pago
 }

@@ -56,5 +56,12 @@ export const ProductSchema = z.object({
         .transform((value) => parseInt(value))
         .refine((value) => value > 0, { message: 'La Categoría es Obligatoria' })
         .or(z.number().min(1, {message: 'La Categoría es Obligatoria' })),
+    stock: z.string() // Asegúrate de que stock sea un número entero después de la transformación
+        .trim()
+        .transform((value) => parseInt(value))
+        .refine((value) => Number.isInteger(value), { message: 'Stock debe ser un número entero' })
+        .refine((value) => value > 0, { message: 'Stock debe ser mayor a 0' })
+        .or(z.number().int().min(1, { message: 'Stock debe ser mayor a 0' }))
+        .optional(),
     image: z.string().min(1, {message: 'La Imagen es Obligatoria'})
 })
