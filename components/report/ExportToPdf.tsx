@@ -10,6 +10,7 @@ interface Product {
   name: string;
   category: { name: string };
   price: number;
+  stock: number | null; // Nuevo campo para el stock
 }
 
 // Propiedades del componente ExportToPdf
@@ -22,15 +23,18 @@ const ExportToPdf: React.FC<ExportToPdfProps> = ({ data }) => {
   const exportToPdf = () => {
     if (!data) return;
 
-    const products = data.map((product: Product, index: number) => ({
-      N: index + 1,
-      Producto: product.name,
-      Categoria: product.category.name,  // Cambio de Categoría a Categoria
-      Precio: product.price.toFixed(2),
-    }));
-
-    const total = products.reduce((acc: number, curr: { Precio: string }) => acc + parseFloat(curr.Precio), 0).toFixed(2);
-    const productsWithTotal = [...products, { N: '', Producto: '', Categoria: 'Total:', Precio: total }];
+    const products = data.map((product: Product, index: number) => {
+      const stockValue = product.stock !== null ? product.stock : 'N/a';
+      const totalValue = product.stock !== null ? (product.price * product.stock).toFixed(2) : product.price.toFixed(2);
+      return {
+        N: index + 1,
+        Producto: product.name,
+        Categoria: product.category.name,
+        Stock: stockValue.toString(),
+        Precio: product.price.toFixed(2),
+        Total: totalValue
+      };
+    });
 
     const doc = new jsPDF();
 
@@ -57,14 +61,23 @@ const ExportToPdf: React.FC<ExportToPdfProps> = ({ data }) => {
     doc.setTextColor(0, 0, 0); // Color negro
     doc.text('Listado de productos', doc.internal.pageSize.width / 2, 15, { align: 'center' });
 
-    // Agregar el texto "Inventario de la inversión de los productos" sin negrita
+    // Agregar el texto "Detalles de Inversión y Stock de Productos" sin negrita
     doc.setFontSize(11);
     doc.setFont('Arial', 'normal');
-    doc.text('Inventario de la inversión de los productos', doc.internal.pageSize.width / 2, 22, { align: 'center' });
+    doc.text('Detalles de Inversión y Stock de Productos', doc.internal.pageSize.width / 2, 22, { align: 'center' });
+
+    // Obtener la fecha y hora actuales
+    const currentDate = new Date();
+    const dateString = currentDate.toLocaleDateString();
+    const timeString = currentDate.toLocaleTimeString();
+
+    // Agregar la fecha y hora al PDF, justo debajo del texto anterior
+    doc.setFontSize(10);
+    doc.text(`Fecha y hora de descarga: ${dateString} ${timeString}`, doc.internal.pageSize.width / 2, 27, { align: 'center' });
 
     // Configuración de estilos para la tabla
     const tableStyles = {
-      startY: logoTop + logoHeight + logoMargin,
+      startY: 32, // Posiciona la tabla más cerca de la fecha y hora
       headStyles: { fillColor: [41, 128, 185], textColor: [255, 255, 255], fontStyle: 'bold' },
       bodyStyles: { textColor: 50 },
       alternateRowStyles: { fillColor: [245, 245, 245] },
@@ -74,18 +87,8 @@ const ExportToPdf: React.FC<ExportToPdfProps> = ({ data }) => {
 
     // Usar jspdf-autotable para generar la tabla
     (doc as any).autoTable({
-      head: [['N°', 'Producto', 'Categoria', 'Precio']],
-      body: productsWithTotal.map((p, index) => {
-        if (index === productsWithTotal.length - 1) {
-          return [
-            { content: p.N, styles: { cellWidth: 'wrap', fontStyle: 'bold', halign: 'center', fillColor: [173, 216, 230] } },
-            { content: p.Producto, styles: { cellWidth: 'wrap', fontStyle: 'bold', halign: 'center', fillColor: [173, 216, 230] } },
-            { content: p.Categoria, styles: { cellWidth: 'wrap', fontStyle: 'bold', halign: 'center', fillColor: [173, 216, 230] } },
-            { content: p.Precio, styles: { cellWidth: 'wrap', fontStyle: 'bold', halign: 'center', fillColor: [173, 216, 230] } }
-          ];
-        }
-        return [p.N, p.Producto, p.Categoria, p.Precio];
-      }),
+      head: [['N°', 'Producto', 'Categoria', 'Stock', 'Precio', 'Total']],
+      body: products.map((p) => [p.N, p.Producto, p.Categoria, p.Stock, p.Precio, p.Total]),
       ...tableStyles,
     });
 

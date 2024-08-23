@@ -11,6 +11,7 @@ interface Product {
   name: string;
   category: { name: string };
   price: number;
+  stock: number | null; // Campo de stock añadido
 }
 
 // Propiedades del componente ExportToExcel
@@ -54,31 +55,34 @@ const ExportToExcel: React.FC<ExportToExcelProps> = ({ data }) => {
     };
 
     // Agregar título
-    worksheet.mergeCells('A1:D1');
+    worksheet.mergeCells('A1:F1');
     const titleCell = worksheet.getCell('A1');
     titleCell.value = 'Listado de Productos';
     titleCell.style = titleStyle;
 
     // Agregar descripción
-    worksheet.mergeCells('A2:D2');
+    worksheet.mergeCells('A2:F2');
     const descriptionCell = worksheet.getCell('A2');
-    descriptionCell.value = 'Inventario de la inversión de los productos';
+    descriptionCell.value = 'Detalles de Inversión y Stock de Productos';
     descriptionCell.style = descriptionStyle;
 
     // Agregar encabezados
-    const headerRow = worksheet.addRow(['N°', 'Producto', 'Categoría', 'Precio']);
+    const headerRow = worksheet.addRow(['N°', 'Producto', 'Categoría', 'Stock', 'Precio', 'Total']);
     headerRow.eachCell((cell) => {
       cell.style = headerStyle;
     });
 
-    // Agregar datos de productos y calcular total
-    let totalPrice = 0;
+    // Agregar datos de productos
     data.forEach((product, index) => {
+      const stockValue = product.stock !== null ? product.stock : 'N/a';
+      const totalValue = product.stock !== null ? (product.price * product.stock).toFixed(2) : product.price.toFixed(2);
       const row = worksheet.addRow([
         index + 1,
         product.name,
         product.category.name,
+        stockValue,
         product.price.toFixed(2),
+        totalValue,
       ]);
       row.eachCell((cell, colNumber) => {
         if (colNumber === 2 || colNumber === 3) {
@@ -86,18 +90,6 @@ const ExportToExcel: React.FC<ExportToExcelProps> = ({ data }) => {
         }
         cell.style = bodyStyle;
       });
-
-      totalPrice += product.price; // Sumar al total
-    });
-
-    // Añadir fila con el total
-    const totalRow = worksheet.addRow(['', '', 'Total:', totalPrice.toFixed(2)]);
-    totalRow.eachCell((cell, colNumber) => {
-      if (colNumber === 3) {
-        cell.style = { ...headerStyle, font: { ...headerStyle.font, bold: true } }; // Estilo especial para el total
-      } else {
-        cell.style = bodyStyle;
-      }
     });
 
     // Ajustar el ancho de las columnas automáticamente
@@ -114,8 +106,10 @@ const ExportToExcel: React.FC<ExportToExcelProps> = ({ data }) => {
     const colWidths = [
       { width: 8 },  // Ancho para N°
       { width: 40 }, // Ancho para Producto
-      { width: 20 }, // Ancho para Categoría (dejando un ancho por defecto)
+      { width: 20 }, // Ancho para Categoría
+      { width: 10 }, // Ancho para Stock
       { width: 10 }, // Ancho para Precio
+      { width: 15 }, // Ancho para Total
     ];
 
     worksheet.columns.forEach((column, colNumber) => {
