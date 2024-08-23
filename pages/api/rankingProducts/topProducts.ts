@@ -30,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
 
       // Create a map of product ids to counts
-      const productCounts = topProducts.reduce((acc, product) => {
+      const productCounts = topProducts.reduce<{ [key: number]: number }>((acc, product) => {
         acc[product.productId] = product._count.id;
         return acc;
       }, {});
