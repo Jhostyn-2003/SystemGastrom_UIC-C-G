@@ -9,7 +9,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // Obtén las órdenes pendientes
+    // Obtén las órdenes pendientes y ordénalas por fecha
     const orders = await prisma.order.findMany({
       where: {
         status: false
@@ -18,6 +18,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         name: true,
         total: true,
         date: true
+      },
+      orderBy: {
+        date: 'desc'
       }
     });
 

@@ -28,7 +28,7 @@ const TopProducts: React.FC = () => {
 
   return (
     <div className='w-full col-span-1 relative lg:h-[70vh] h-[50vh] m-auto p-4 border rounded-lg bg-white overflow-scroll'>
-      <h2 className='text-xl font-semibold mb-4'>Top 10 Productos Más Vendidos</h2>
+      <h2 className='text-xl font-semibold mb-4'>Top 10 productos más vendidos</h2>
       {topProducts.length === 0 ? (
         <div className='flex items-center justify-center h-full'>
           <FaExclamationCircle className='text-red-500 mr-2' />

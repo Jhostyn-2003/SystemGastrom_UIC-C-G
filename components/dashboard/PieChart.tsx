@@ -47,7 +47,7 @@ export default function PieChartComponent() {
       />
     </div>*/
     <div className="w-full lg:col-span-2 p-4 border rounded-lg bg-white">
-      <h2 className="text-xl font-semibold mb-4">Productos por Categoría</h2>
+      <h2 className="text-xl font-semibold mb-4">Total de productos por categoría existentes</h2>
       <div className="lg:flex lg:justify-center">
           {/* Renderización para computadoras y Moviles */}
           <PieChart

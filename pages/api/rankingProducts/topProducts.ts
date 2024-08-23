@@ -27,15 +27,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             in: productIds,
           },
         },
-        orderBy: {
-          id: 'asc',
-        },
       });
+
+      // Create a map of product ids to counts
+      const productCounts = topProducts.reduce((acc, product) => {
+        acc[product.productId] = product._count.id;
+        return acc;
+      }, {});
+
+      // Sort products by count in descending order
+      products.sort((a, b) => productCounts[b.id] - productCounts[a.id]);
 
       const topProductsData = products.map((product) => ({
         id: product.id,
         name: product.name,
-        count: topProducts.find((p) => p.productId === product.id)?._count?.id || 0,
+        count: productCounts[product.id] || 0,
       }));
 
       res.status(200).json(topProductsData);
