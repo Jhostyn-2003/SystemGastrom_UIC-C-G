@@ -107,11 +107,14 @@ export default function Dashboard() {
       const params = new URLSearchParams();
 
       if (view === 'daily') {
-        if (startDate) params.append('startDate', startDate.toISOString().split('T')[0]);
-        if (endDate) {
-          const endDateWithTime = new Date(endDate);
-          endDateWithTime.setHours(23, 59, 59, 999);
-          params.append('endDate', endDateWithTime.toISOString().split('T')[0]);
+        if (startDate) {
+          const start = new Date(startDate);
+          start.setHours(0, 0, 0, 0); // Asegurarse de que el inicio es a medianoche
+          params.append('startDate', start.toISOString().split('T')[0]);
+
+          const end = new Date(endDate || startDate);
+          end.setHours(23, 59, 59, 999); // Asegurarse de que el final es al final del día
+          params.append('endDate', end.toISOString().split('T')[0]);
         }
       } else {
         if (selectedYear) params.append('year', selectedYear.getUTCFullYear().toString());
