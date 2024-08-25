@@ -1,4 +1,5 @@
-'use client'
+// app/admin/dashboard/page.tsx
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { Bar } from 'react-chartjs-2';
@@ -13,7 +14,7 @@ import {
 } from 'chart.js';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import es from 'date-fns/locale/es';
+import { es } from 'date-fns/locale';
 import Select from 'react-select';
 
 ChartJS.register(
@@ -25,7 +26,7 @@ ChartJS.register(
     Legend
 );
 
-registerLocale('es', es);  // Registra el idioma español
+registerLocale('es', es);
 
 interface Category {
   id: number;
@@ -46,9 +47,9 @@ interface RevenueData {
 
 export default function Dashboard() {
   const [view, setView] = useState<'daily' | 'monthly'>('monthly');
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
-  const [selectedYear, setSelectedYear] = useState<Date | null>(new Date());
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [selectedYear, setSelectedYear] = useState<Date | undefined>(new Date());
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -192,12 +193,12 @@ export default function Dashboard() {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'top',
+        position: 'top' as const, // Se utiliza 'const' para asegurar que es un valor permitido.
         labels: {
           font: {
             size: 14,
             family: 'Arial, sans-serif',
-            weight: 'bold',
+            weight: 'bold' as const, // Se asegura que 'bold' es un valor permitido.
           },
           color: '#4a4a4a',
         },
@@ -208,7 +209,7 @@ export default function Dashboard() {
         font: {
           size: 18,
           family: 'Arial, sans-serif',
-          weight: 'bold',
+          weight: 'bold' as const, // Se asegura que 'bold' es un valor permitido.
         },
         color: '#333',
       },
@@ -252,24 +253,24 @@ export default function Dashboard() {
           {view === 'daily' ? (
               <>
                 <DatePicker
-                    selected={startDate}
-                    onChange={(date) => setStartDate(date)}
+                    selected={startDate || undefined}
+                    onChange={(date) => setStartDate(date || undefined)}
                     selectsStart
-                    startDate={startDate}
-                    endDate={endDate}
-                    dateFormat="yyyy-MM-dd" // Cambiado para que coincida con el formato de la API
+                    startDate={startDate || undefined}
+                    endDate={endDate || undefined}
+                    dateFormat="yyyy-MM-dd"
                     locale="es"
                     placeholderText="Fecha de inicio"
                     className="p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 w-full"
                 />
                 <DatePicker
-                    selected={endDate}
-                    onChange={(date) => setEndDate(date)}
+                    selected={endDate || undefined}
+                    onChange={(date) => setEndDate(date || undefined)}
                     selectsEnd
-                    startDate={startDate}
-                    endDate={endDate}
-                    minDate={startDate}
-                    dateFormat="yyyy-MM-dd" // Cambiado para que coincida con el formato de la API
+                    startDate={startDate || undefined}
+                    endDate={endDate || undefined}
+                    minDate={startDate || undefined}
+                    dateFormat="yyyy-MM-dd"
                     locale="es"
                     placeholderText="Fecha de fin"
                     className="p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 w-full"
@@ -277,8 +278,8 @@ export default function Dashboard() {
               </>
           ) : (
               <DatePicker
-                  selected={selectedYear}
-                  onChange={(date) => setSelectedYear(date)}
+                  selected={selectedYear || undefined}
+                  onChange={(date) => setSelectedYear(date || undefined)}
                   showYearPicker
                   dateFormat="yyyy"
                   placeholderText="Seleccionar año"

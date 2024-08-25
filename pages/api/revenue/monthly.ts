@@ -34,6 +34,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.status(200).json({ monthlyRevenue: revenueData });
     } catch (error) {
         console.error('Error fetching revenue data:', error);
-        res.status(500).json({ error: 'Internal Server Error', details: error.message });
+
+        // Comprobación de tipo para asegurar que 'error' tiene una propiedad 'message'
+        if (error instanceof Error) {
+            res.status(500).json({ error: 'Internal Server Error', details: error.message });
+        } else {
+            res.status(500).json({ error: 'Internal Server Error', details: 'Unknown error' });
+        }
     }
 }

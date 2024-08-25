@@ -1,4 +1,3 @@
-
 // /pages/api/revenue/daily.ts
 //  /api/revenue/daily?startDate=2021-01-01&endDate=2021-01-31&categoryId=1&productId
 import { Prisma } from '@prisma/client';
@@ -38,6 +37,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.status(200).json({ dailyRevenue: revenueData });
     } catch (error) {
         console.error('Error fetching revenue data:', error);
-        res.status(500).json({ error: 'Internal Server Error', details: error.message });
+
+        // Comprobación de tipo para asegurar que 'error' tiene una propiedad 'message'
+        if (error instanceof Error) {
+            res.status(500).json({ error: 'Internal Server Error', details: error.message });
+        } else {
+            res.status(500).json({ error: 'Internal Server Error', details: 'Unknown error' });
+        }
     }
 }
