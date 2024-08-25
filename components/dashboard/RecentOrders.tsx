@@ -25,7 +25,7 @@ const RecentOrders: React.FC = () => {
 
   return (
       <div className='w-full col-span-1 relative lg:h-[70vh] h-[50vh] m-auto p-4 border rounded-lg bg-white overflow-scroll'>
-        <h1 className='text-xl font-semibold mb-4'>Órdenes diarias recientes</h1>
+        <h1 className='text-xl font-semibold mb-4'>Órdenes pendientes</h1>
         {orders.length === 0 ? (
             <div className='flex items-center justify-center h-full'>
               <FaExclamationCircle className='text-red-500 mr-2' />

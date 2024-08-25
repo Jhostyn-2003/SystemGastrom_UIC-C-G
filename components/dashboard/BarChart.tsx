@@ -1,7 +1,7 @@
-import React, { useReducer, useEffect } from 'react';
+'use client'
+
+import React, { useState, useEffect } from 'react';
 import { Bar } from 'react-chartjs-2';
-import { z } from 'zod';
-import { toast } from 'react-toastify';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,6 +11,10 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import DatePicker, { registerLocale } from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import es from 'date-fns/locale/es';
+import Select from 'react-select';
 
 ChartJS.register(
     CategoryScale,
@@ -21,234 +25,333 @@ ChartJS.register(
     Legend
 );
 
-interface ChartDataSet {
-  label: string;
-  data: number[];
-  borderColor: string;
-  backgroundColor: string;
+registerLocale('es', es);  // Registra el idioma español
+
+interface Category {
+  id: number;
+  name: string;
 }
 
-interface ChartData {
-  labels: string[];
-  datasets: ChartDataSet[];
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  stock: number;
 }
 
-interface RevenueEntry {
+interface RevenueData {
   date: string;
   total: number;
 }
 
-interface ChartDataResponse {
-  dailyRevenue?: RevenueEntry[];
-  monthlyRevenue?: RevenueEntry[];
-}
+export default function Dashboard() {
+  const [view, setView] = useState<'daily' | 'monthly'>('monthly');
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [selectedYear, setSelectedYear] = useState<Date | null>(new Date());
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [revenueData, setRevenueData] = useState<RevenueData[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState<boolean>(false);
 
-type Action =
-    | { type: 'SET_DATA'; data: ChartData }
-    | { type: 'SET_NO_DATA'; noData: boolean };
-
-const chartDataReducer = (state: ChartData, action: Action): ChartData => {
-  switch (action.type) {
-    case 'SET_DATA':
-      return action.data;
-    case 'SET_NO_DATA':
-      return { labels: [], datasets: [] };
-    default:
-      return state;
-  }
-};
-
-const dateSchema = z.object({
-  startDate: z.string().min(1, "Fecha de inicio es requerida"),
-  endDate: z.string().min(1, "Fecha de fin es requerida")
-});
-
-export default function BarChart() {
-  const [chartData, dispatch] = useReducer(chartDataReducer, {
-    labels: [],
-    datasets: [
-      {
-        label: 'Ganancia $',
-        data: [],
-        borderColor: 'rgb(53, 162, 235)',
-        backgroundColor: 'rgba(53, 162, 235, 0.4)',
-      },
-    ],
-  });
-
-  const [view, setView] = React.useState<'daily' | 'monthly'>('monthly');
-  const [startDate, setStartDate] = React.useState<string>('');
-  const [endDate, setEndDate] = React.useState<string>('');
-  const [noData, setNoData] = React.useState<boolean>(false);
-
-  const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+  const currentYear = new Date().getFullYear();
 
   useEffect(() => {
-    async function fetchChartData() {
-      try {
-        const url = view === 'daily'
-            ? `/api/revenue/${view}?startDate=${startDate}&endDate=${endDate}`
-            : `/api/revenue/${view}`;
+    fetchCategories();
+  }, []);
 
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data: ChartDataResponse = await response.json();
-        const revenue = data[`${view}Revenue`];
-
-        if (!revenue || revenue.length === 0) {
-          setNoData(true);
-          dispatch({ type: 'SET_NO_DATA', noData: true });
-          return;
-        }
-
-        setNoData(false);
-
-        let labels: string[] = [];
-        let values: number[] = [];
-
-        if (view === 'monthly') {
-          // Agrupar por mes y año en formato UTC
-          const monthlyRevenue: { [key: string]: number } = {};
-          revenue.forEach((entry) => {
-            const date = new Date(entry.date);
-            const key = `${date.getUTCFullYear()}-${date.getUTCMonth() + 1}`; // YYYY-MM
-            if (!monthlyRevenue[key]) {
-              monthlyRevenue[key] = 0;
-            }
-            monthlyRevenue[key] += entry.total;
-          });
-
-          labels = Object.keys(monthlyRevenue).map((key) => {
-            const [year, month] = key.split('-').map(Number);
-            return `${monthNames[month - 1]} ${year}`;
-          });
-
-          values = Object.values(monthlyRevenue);
-        } else {
-          // Vista diaria
-          labels = revenue.map((entry) => formatDate(new Date(entry.date), 'day'));
-          values = revenue.map((entry) => entry.total);
-        }
-
-        dispatch({
-          type: 'SET_DATA',
-          data: {
-            labels,
-            datasets: [
-              {
-                label: 'Ganancia $',
-                data: values,
-                borderColor: 'rgb(53, 162, 235)',
-                backgroundColor: 'rgba(53, 162, 235, 0.4)',
-              },
-            ],
-          },
-        });
-      } catch (error) {
-        console.error('Error fetching chart data:', error);
-        setNoData(true);
-      }
-    }
-
-    fetchChartData();
-  }, [view, startDate, endDate]);
-
-  const toggleView = () => {
-    if (view === 'daily') {
-      setStartDate('');
-      setEndDate('');
+  useEffect(() => {
+    if (selectedCategory) {
+      fetchProducts(selectedCategory.id);
     } else {
-      const today = new Date();
-      const start = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), 1));
-      const end = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth() + 1, 0));
-
-      setStartDate(formatDate(start, 'input'));
-      setEndDate(formatDate(end, 'input'));
+      setProducts([]);
+      setSelectedProduct(null);
     }
-    setView(view === 'daily' ? 'monthly' : 'daily');
+  }, [selectedCategory]);
+
+  useEffect(() => {
+    fetchRevenueData();
+  }, [view, startDate, endDate, selectedYear, selectedCategory, selectedProduct]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/revenue/categories');
+      if (!response.ok) throw new Error('Error al obtener las categorías');
+      const data = await response.json();
+      setCategories(data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
-  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedEndDate = e.target.value;
+  const fetchProducts = async (categoryId: number) => {
+    setIsLoadingProducts(true);
+    try {
+      const response = await fetch(`/api/revenue/products?categoryId=${categoryId}`);
+      if (!response.ok) throw new Error('Error al obtener los productos');
+      const data = await response.json();
+      setProducts(data);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setIsLoadingProducts(false);
+    }
+  };
 
-    // Validar las fechas
-    const validationResult = dateSchema.safeParse({
-      startDate,
-      endDate: selectedEndDate
+  const fetchRevenueData = async () => {
+    try {
+      let url = `/api/revenue/${view}?`;
+      const params = new URLSearchParams();
+
+      if (view === 'daily') {
+        if (startDate) params.append('startDate', startDate.toISOString().split('T')[0]);
+        if (endDate) {
+          const endDateWithTime = new Date(endDate);
+          endDateWithTime.setHours(23, 59, 59, 999);
+          params.append('endDate', endDateWithTime.toISOString().split('T')[0]);
+        }
+      } else {
+        if (selectedYear) params.append('year', selectedYear.getUTCFullYear().toString());
+      }
+
+      if (selectedCategory) params.append('categoryId', selectedCategory.id.toString());
+      if (selectedProduct) params.append('productId', selectedProduct.id.toString());
+
+      url += params.toString();
+
+      const response = await fetch(url);
+      if (!response.ok) throw new Error('Error al obtener los datos de ingresos');
+      const data = await response.json();
+      const revenueKey = view === 'daily' ? 'dailyRevenue' : 'monthlyRevenue';
+      const formattedRevenueData = view === 'monthly'
+          ? formatMonthlyRevenueData(data[revenueKey])
+          : formatDailyRevenueData(data[revenueKey]);
+      setRevenueData(formattedRevenueData);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const formatMonthlyRevenueData = (data: RevenueData[]) => {
+    const months = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+
+    const monthTotals = Array(12).fill(0);
+
+    data.forEach(item => {
+      const date = new Date(item.date);
+      const monthIndex = date.getUTCMonth();
+      monthTotals[monthIndex] += item.total;
     });
 
-    if (validationResult.success) {
-      if (selectedEndDate < startDate) {
-        toast.error("La fecha de fin no puede ser menor que la fecha de inicio.");
-        return;
-      }
-      setEndDate(selectedEndDate);
-    } else {
-      toast.error(validationResult.error.issues.map(issue => issue.message).join(', '));
+    return months.map((month, index) => ({
+      date: month,
+      total: monthTotals[index],
+    }));
+  };
+
+  const formatDailyRevenueData = (data: RevenueData[]) => {
+    return data.map(item => ({
+      date: new Date(item.date).toLocaleDateString('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+      total: item.total,
+    }));
+  };
+
+  const handleViewChange = (selectedView: 'daily' | 'monthly') => {
+    setView(selectedView);
+    if (selectedView === 'daily') {
+      const now = new Date();
+      const firstDayOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 1));
+      const lastDayOfWeek = new Date(now.setDate(firstDayOfWeek.getDate() + 6));
+      setStartDate(firstDayOfWeek);
+      setEndDate(lastDayOfWeek);
+      setSelectedCategory(null);
+      setSelectedProduct(null);
     }
   };
 
-  const formatDate = (date: Date, format: 'day' | 'month' | 'input'): string => {
-    // La fecha ya está en UTC, solo formatear
-    if (format === 'day') {
-      return date.toISOString().split('T')[0];
-    } else if (format === 'month') {
-      return date.toISOString().slice(0, 7);
-    } else {
-      return date.toISOString().split('T')[0];
-    }
+  const chartData = {
+    labels: revenueData.map(d => d.date),
+    datasets: [
+      {
+        label: 'Ingresos',
+        data: revenueData.map(d => d.total),
+        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1,
+      },
+    ],
   };
 
-  const options = {
-    maintainAspectRatio: false,
+  const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          font: {
+            size: 14,
+            family: 'Arial, sans-serif',
+            weight: 'bold',
+          },
+          color: '#4a4a4a',
+        },
+      },
+      title: {
+        display: true,
+        text: 'Gráfico de Ingresos',
+        font: {
+          size: 18,
+          family: 'Arial, sans-serif',
+          weight: 'bold',
+        },
+        color: '#333',
+      },
+    },
     scales: {
       x: {
-        beginAtZero: true,
+        ticks: {
+          font: {
+            size: window.innerWidth < 640 ? 10 : 12,
+          },
+          maxRotation: window.innerWidth < 640 ? 90 : 0,
+          minRotation: window.innerWidth < 640 ? 90 : 0,
+          autoSkip: window.innerWidth >= 640,
+          maxTicksLimit: 12,
+        },
       },
       y: {
-        beginAtZero: true,
+        ticks: {
+          font: {
+            size: 12,
+          },
+        },
       },
     },
   };
 
   return (
-      <div className='w-full md:col-span-2 p-4 border rounded-lg bg-white shadow-md flex flex-col h-120'>
-        <h2 className='text-xl font-semibold mb-4'>
-          {view === 'daily' ? 'Ganancias Diarias' : 'Ganancias Mensuales'}
-        </h2>
-        <button onClick={toggleView} className='mb-4 p-2 bg-blue-600 font-bold text-white rounded'>
-          {view === 'daily' ? 'Ver por Mes' : 'Ver por Día'}
-        </button>
-        {view === 'daily' && (
-            <div className='mb-4'>
-              <label className='block mb-2'>
-                Fecha de inicio:
-                <input
-                    type='date'
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className='block w-full p-2 border border-gray-300 rounded'
+      <div className="container mx-auto p-6 bg-white rounded-lg shadow-md">
+        <h1 className="text-4xl font-bold mb-6 text-center text-gray-800">Ingresos: Vista Mensual y Diaria</h1>
+
+        <div className="flex flex-col md:flex-row items-center mb-6 gap-4">
+          <select
+              value={view}
+              onChange={(e) => handleViewChange(e.target.value as 'daily' | 'monthly')}
+              className="p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200"
+          >
+            <option value="daily">Diario</option>
+            <option value="monthly">Mensual</option>
+          </select>
+
+          {view === 'daily' ? (
+              <>
+                <DatePicker
+                    selected={startDate}
+                    onChange={(date) => setStartDate(date)}
+                    selectsStart
+                    startDate={startDate}
+                    endDate={endDate}
+                    dateFormat="yyyy-MM-dd" // Cambiado para que coincida con el formato de la API
+                    locale="es"
+                    placeholderText="Fecha de inicio"
+                    className="p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 w-full"
                 />
-              </label>
-              <label className='block mb-2'>
-                Fecha de fin:
-                <input
-                    type='date'
-                    value={endDate}
-                    onChange={handleEndDateChange}
-                    className='block w-full p-2 border border-gray-300 rounded'
+                <DatePicker
+                    selected={endDate}
+                    onChange={(date) => setEndDate(date)}
+                    selectsEnd
+                    startDate={startDate}
+                    endDate={endDate}
+                    minDate={startDate}
+                    dateFormat="yyyy-MM-dd" // Cambiado para que coincida con el formato de la API
+                    locale="es"
+                    placeholderText="Fecha de fin"
+                    className="p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 w-full"
                 />
-              </label>
-            </div>
-        )}
-        <div className='flex-1'>
-          <Bar data={chartData} options={options} />
+              </>
+          ) : (
+              <DatePicker
+                  selected={selectedYear}
+                  onChange={(date) => setSelectedYear(date)}
+                  showYearPicker
+                  dateFormat="yyyy"
+                  placeholderText="Seleccionar año"
+                  maxDate={new Date(currentYear, 11, 31)}
+                  className="p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 w-full"
+              />
+          )}
         </div>
-        {noData && <p className='text-red-500 mt-4'>No hay datos disponibles para mostrar.</p>}
+
+        <div className="flex flex-col md:flex-row items-center mb-6 gap-4">
+          <Select
+              value={selectedCategory ? { value: selectedCategory.id, label: selectedCategory.name } : null}
+              onChange={(option) => {
+                const category = categories.find(c => c.id === option?.value);
+                setSelectedCategory(category || null);
+              }}
+              options={categories.map(category => ({ value: category.id, label: category.name }))}
+              placeholder="Todas las categorías"
+              className="w-full md:w-1/2"
+              isClearable
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  padding: '4px',
+                  borderColor: '#d1d5db',
+                  boxShadow: 'none',
+                  '&:hover': {
+                    borderColor: '#a7a7a7',
+                  },
+                }),
+              }}
+          />
+
+          {selectedCategory && (
+              <div className="w-full md:w-1/2 relative">
+                <Select
+                    value={selectedProduct ? { value: selectedProduct.id, label: selectedProduct.name } : null}
+                    onChange={(option) => {
+                      const product = products.find(p => p.id === option?.value);
+                      setSelectedProduct(product || null);
+                    }}
+                    options={products.map(product => ({ value: product.id, label: product.name }))}
+                    placeholder={isLoadingProducts ? "Cargando productos..." : "Todos los productos"}
+                    className="w-full"
+                    isClearable
+                    isDisabled={isLoadingProducts}
+                    styles={{
+                      control: (base) => ({
+                        ...base,
+                        padding: '4px',
+                        borderColor: '#d1d5db',
+                        boxShadow: 'none',
+                        '&:hover': {
+                          borderColor: '#a7a7a7',
+                        },
+                      }),
+                    }}
+                />
+                {isLoadingProducts && (
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                      <svg className="animate-spin h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                      </svg>
+                    </div>
+                )}
+              </div>
+          )}
+        </div>
+
+        <div className="chart-container mb-6" style={{ minHeight: '300px', height: '50vh' }}>
+          <Bar data={chartData} options={chartOptions} className="w-full h-full" />
+        </div>
       </div>
   );
 }
