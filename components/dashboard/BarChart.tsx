@@ -45,10 +45,26 @@ interface RevenueData {
   total: number;
 }
 
+function getStartOfWeek(date: Date) {
+  const startOfWeek = new Date(date);
+  const day = startOfWeek.getDay();
+  const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Sunday being 0
+  return new Date(startOfWeek.setDate(diff));
+}
+
+function getEndOfWeek(date: Date) {
+  const endOfWeek = new Date(date);
+  const day = endOfWeek.getDay();
+  const diff = endOfWeek.getDate() - day + (day === 0 ? 0 : 7); // Adjust for Sunday being 0
+  endOfWeek.setDate(diff);
+  endOfWeek.setHours(23, 59, 59, 999);
+  return endOfWeek;
+}
+
 export default function Dashboard() {
   const [view, setView] = useState<'daily' | 'monthly'>('monthly');
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [startDate, setStartDate] = useState<Date>(getStartOfWeek(new Date()));
+  const [endDate, setEndDate] = useState<Date>(getEndOfWeek(new Date()));
   const [selectedYear, setSelectedYear] = useState<Date | undefined>(new Date());
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -108,11 +124,7 @@ export default function Dashboard() {
 
       if (view === 'daily') {
         if (startDate) params.append('startDate', startDate.toISOString().split('T')[0]);
-        if (endDate) {
-          const endDateWithTime = new Date(endDate);
-          endDateWithTime.setHours(23, 59, 59, 999);
-          params.append('endDate', endDateWithTime.toISOString().split('T')[0]);
-        }
+        if (endDate) params.append('endDate', endDate.toISOString().split('T')[0]);
       } else {
         if (selectedYear) params.append('year', selectedYear.getUTCFullYear().toString());
       }
@@ -166,8 +178,8 @@ export default function Dashboard() {
     setView(selectedView);
     if (selectedView === 'daily') {
       const now = new Date();
-      setStartDate(now);
-      setEndDate(now);
+      setStartDate(getStartOfWeek(now));
+      setEndDate(getEndOfWeek(now));
       setSelectedCategory(null);
       setSelectedProduct(null);
     }
@@ -236,7 +248,7 @@ export default function Dashboard() {
 
   return (
       <div className="container mx-auto p-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-4xl font-bold mb-6 text-center text-gray-800">Ingresos: Vista Mensual y Diaria</h1>
+        <h1 className="text-4xl font-bold mb-6 text-center text-gray-800">Ingresos: Vista Mensual y Semanal (con Detalle Diario)</h1>
 
         <div className="flex flex-col md:flex-row items-center mb-6 gap-4">
           <select
@@ -244,7 +256,7 @@ export default function Dashboard() {
               onChange={(e) => handleViewChange(e.target.value as 'daily' | 'monthly')}
               className="p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200"
           >
-            <option value="daily">Diario</option>
+            <option value="daily">Diario Semanal</option>
             <option value="monthly">Mensual</option>
           </select>
 
