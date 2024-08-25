@@ -38,12 +38,6 @@ export default function DashboardPage() {
   }, []);
 
   return (
-      /*<div className='grid lg:grid-cols-4 gap-4 p-4'>
-        <StatCard title="Total Productos" value={stats.totalProducts} />
-        <StatCard title="Total Categorias" value={stats.totalCategories} />
-        <StatCard title="Ordenes Pendiente" value={stats.pendingOrders} />
-        <StatCard title="Ordenes Listas" value={stats.readyOrders} />
-      </div>*/
       <div className='bg-gray-100 min-h-screen'>
         <div className='p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
           <StatCard title="Total Productos" value={stats.totalProducts}/>
@@ -52,23 +46,20 @@ export default function DashboardPage() {
           <StatCard title="Ordenes Listas" value={stats.readyOrders}/>
         </div>
         <div className='p-4 grid grid-cols-1 md:grid-cols-3 gap-4'>
-          <div className='flex justify-center items-center'>
-            <PieChart className='w-full h-full'/>
+          <div className='flex justify-center items-center w-full h-full'>
+            <PieChart />
           </div>
-          <div className='flex justify-center items-center'>
-            <RecentOrders className='w-full h-full'/>
+          <div className='flex justify-center items-center w-full h-full'>
+            <RecentOrders />
           </div>
-          <div className='flex justify-center items-center'>
-            <TopProducts className='w-full h-full'/>
+          <div className='flex justify-center items-center w-full h-full'>
+            <TopProducts />
           </div>
         </div>
 
-        <div className='p-4'>
-          <BarChart className='w-full'/>
+        <div className='p-4 w-full'>
+          <BarChart />
         </div>
-
       </div>
-
-
   );
 }
