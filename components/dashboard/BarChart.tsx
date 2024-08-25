@@ -107,14 +107,11 @@ export default function Dashboard() {
       const params = new URLSearchParams();
 
       if (view === 'daily') {
-        if (startDate) {
-          const start = new Date(startDate);
-          start.setHours(0, 0, 0, 0); // Asegurarse de que el inicio es a medianoche
-          params.append('startDate', start.toISOString().split('T')[0]);
-
-          const end = new Date(endDate || startDate);
-          end.setHours(23, 59, 59, 999); // Asegurarse de que el final es al final del día
-          params.append('endDate', end.toISOString().split('T')[0]);
+        if (startDate) params.append('startDate', startDate.toISOString().split('T')[0]);
+        if (endDate) {
+          const endDateWithTime = new Date(endDate);
+          endDateWithTime.setHours(23, 59, 59, 999);
+          params.append('endDate', endDateWithTime.toISOString().split('T')[0]);
         }
       } else {
         if (selectedYear) params.append('year', selectedYear.getUTCFullYear().toString());
@@ -169,10 +166,8 @@ export default function Dashboard() {
     setView(selectedView);
     if (selectedView === 'daily') {
       const now = new Date();
-      const firstDayOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 1));
-      const lastDayOfWeek = new Date(now.setDate(firstDayOfWeek.getDate() + 6));
-      setStartDate(firstDayOfWeek);
-      setEndDate(lastDayOfWeek);
+      setStartDate(now);
+      setEndDate(now);
       setSelectedCategory(null);
       setSelectedProduct(null);
     }
@@ -196,12 +191,12 @@ export default function Dashboard() {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'top' as const, // Se utiliza 'const' para asegurar que es un valor permitido.
+        position: 'top' as const,
         labels: {
           font: {
             size: 14,
             family: 'Arial, sans-serif',
-            weight: 'bold' as const, // Se asegura que 'bold' es un valor permitido.
+            weight: 'bold' as const,
           },
           color: '#4a4a4a',
         },
@@ -212,7 +207,7 @@ export default function Dashboard() {
         font: {
           size: 18,
           family: 'Arial, sans-serif',
-          weight: 'bold' as const, // Se asegura que 'bold' es un valor permitido.
+          weight: 'bold' as const,
         },
         color: '#333',
       },
