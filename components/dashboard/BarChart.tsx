@@ -263,23 +263,23 @@ export default function Dashboard() {
           {view === 'daily' ? (
               <>
                 <DatePicker
-                    selected={startDate || undefined}
-                    onChange={(date) => setStartDate(date || undefined)}
+                    selected={startDate}
+                    onChange={(date) => date && setStartDate(date)}
                     selectsStart
-                    startDate={startDate || undefined}
-                    endDate={endDate || undefined}
+                    startDate={startDate}
+                    endDate={endDate}
                     dateFormat="yyyy-MM-dd"
                     locale="es"
                     placeholderText="Fecha de inicio"
                     className="p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-indigo-200 w-full"
                 />
                 <DatePicker
-                    selected={endDate || undefined}
-                    onChange={(date) => setEndDate(date || undefined)}
+                    selected={endDate}
+                    onChange={(date) => date && setEndDate(date)}
                     selectsEnd
-                    startDate={startDate || undefined}
-                    endDate={endDate || undefined}
-                    minDate={startDate || undefined}
+                    startDate={startDate}
+                    endDate={endDate}
+                    minDate={startDate}
                     dateFormat="yyyy-MM-dd"
                     locale="es"
                     placeholderText="Fecha de fin"
@@ -288,7 +288,7 @@ export default function Dashboard() {
               </>
           ) : (
               <DatePicker
-                  selected={selectedYear || undefined}
+                  selected={selectedYear}
                   onChange={(date) => setSelectedYear(date || undefined)}
                   showYearPicker
                   dateFormat="yyyy"
