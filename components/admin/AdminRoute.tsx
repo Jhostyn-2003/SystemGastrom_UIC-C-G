@@ -11,18 +11,17 @@ type AdminRouteProps ={
     }
 }
 
-
 export default function AdminRoute({link} : Readonly<AdminRouteProps>) {
     const pathname = usePathname()
     const isActive = pathname ? pathname.startsWith(link.url) : false;
 
     return (
-    <Link
-        className={`${isActive ? 'bg-sky-900 hover:bg-indigo-800': ''} font-bold text-lg border-t border-gray-200 p-3 last-of-type:border-b`}
-        href={link.url}
-        target={link.blank ? '_blank' : ''}
-    >
-        {link.text}
-    </Link>
-  )
+        <Link
+            className={`${isActive ? 'bg-sky-900 text-white hover:bg-indigo-800' : 'text-black'} font-bold text-lg border-t border-gray-200 p-3 last-of-type:border-b`}
+            href={link.url}
+            target={link.blank ? '_blank' : ''}
+        >
+            {link.text}
+        </Link>
+    )
 }
