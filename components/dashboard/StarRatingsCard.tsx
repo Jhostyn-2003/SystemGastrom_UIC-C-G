@@ -24,61 +24,59 @@ const StarRatingsCard: React.FC<StarRatingsCardProps> = ({ recommendations }) =>
     }));
 
     const renderStars = () => {
-        const fullStars = Math.floor(averageRating);
-        const hasHalfStar = averageRating - fullStars >= 0.5;
-
         return Array.from({ length: 5 }).map((_, i) => {
-            if (i < fullStars) {
-                return (
-                    <span key={i} className="text-yellow-500" style={{ fontSize: '2rem' }}>
+            const starRating = i + 1;
+            const fullStarWidth = averageRating >= starRating ? '100%' :
+                averageRating > starRating - 1 ? `${(averageRating - (starRating - 1)) * 100}%` : '0%';
+
+            return (
+                <span
+                    key={i}
+                    className="relative"
+                    style={{ fontSize: '3rem', display: 'inline-block', width: '1em', height: '1em' }}
+                >
+                    <span className="absolute text-gray-300">
                         ★
                     </span>
-                );
-            } else if (i === fullStars && hasHalfStar) {
-                return (
-                    <span key={i} className="text-yellow-500" style={{ fontSize: '2rem', position: 'relative' }}>
-                        <span className="text-yellow-500" style={{ position: 'absolute', width: '50%', overflow: 'hidden' }}>
-                            ★
-                        </span>
-                        <span className="text-gray-300">
-                            ★
-                        </span>
-                    </span>
-                );
-            } else {
-                return (
-                    <span key={i} className="text-gray-300" style={{ fontSize: '2rem' }}>
+                    <span
+                        className="absolute text-yellow-500 overflow-hidden"
+                        style={{ width: fullStarWidth }}
+                    >
                         ★
                     </span>
-                );
-            }
+                </span>
+            );
         });
     };
 
     return (
-        <div className="bg-white p-4 rounded-lg shadow-md">
-            <h2 className="text-xl font-bold mb-4">Resumen de la calificación del público</h2>
-            <div className="flex items-center mb-4">
-                <span className="text-4xl font-bold">{averageRating.toFixed(1)}</span>
-                <div className="ml-4">
-                    <div className="flex">
-                        {renderStars()}
+        <div className="bg-white p-4 rounded-lg shadow-md min-h-full flex flex-col justify-between">
+            <div>
+                <h2 className="text-xl font-bold mb-4">Resumen de la calificación del público</h2>
+                <div className="flex items-center mb-4">
+                    <span className="text-5xl font-bold">{averageRating.toFixed(1)}</span>
+                    <div className="ml-4">
+                        <div className="flex">
+                            {renderStars()}
+                        </div>
+                        <span className="text-lg text-gray-500">{totalRatings} calificaciones</span>
                     </div>
-                    <span className="text-sm text-gray-500">{totalRatings} calificaciones</span>
                 </div>
             </div>
-            {ratingCount.map(({ rating, count }) => (
-                <div key={rating} className="flex items-center mb-2">
-                    <span className="text-yellow-500">{rating} ★</span>
-                    <div className="flex-grow bg-gray-300 mx-2 h-2 rounded-lg overflow-hidden">
-                        <div
-                            className="bg-yellow-500 h-full"
-                            style={{ width: `${(count / totalRatings) * 100}%` }}
-                        ></div>
+            <div className="mt-4">
+                {ratingCount.map(({ rating, count }) => (
+                    <div key={rating} className="flex items-center mb-2">
+                        <span className="text-yellow-500 text-lg">{rating} ★</span>
+                        <div className="flex-grow bg-gray-300 mx-2 h-3 rounded-lg overflow-hidden">
+                            <div
+                                className="bg-yellow-500 h-full"
+                                style={{ width: `${(count / totalRatings) * 100}%` }}
+                            ></div>
+                        </div>
+                        <span className="text-lg text-gray-600">{count}</span>
                     </div>
-                    <span className="text-sm text-gray-600">{count}</span>
-                </div>
-            ))}
+                ))}
+            </div>
         </div>
     );
 };

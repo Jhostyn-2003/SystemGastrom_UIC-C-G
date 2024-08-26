@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import { FaStar } from 'react-icons/fa';  // Importando el ícono de estrella de FontAwesome
 
 interface Recommendation {
     id: number;
@@ -15,21 +16,46 @@ interface UserCommentsCardProps {
 }
 
 const UserCommentsCard: React.FC<UserCommentsCardProps> = ({ recommendations }) => {
+    const [selectedRating, setSelectedRating] = useState<number | 'all'>('all');
+
     const formatDateUTC = (dateString: string) => {
         const date = new Date(dateString);
         const options: Intl.DateTimeFormatOptions = {
             year: 'numeric',
             month: 'numeric',
             day: 'numeric',
-            timeZone: 'UTC', // Usar UTC como zona horaria
+            timeZone: 'UTC',
         };
         return date.toLocaleDateString('es-ES', options);
     };
 
+    const filteredRecommendations = selectedRating === 'all'
+        ? recommendations
+        : recommendations.filter((rec) => rec.rating === selectedRating);
+
     return (
         <div className="bg-white p-4 rounded-lg shadow-md max-h-96 overflow-y-auto">
-            <h2 className="text-xl font-bold mb-4">Opiniones del público</h2>
-            {recommendations.map((rec) => (
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold">Opiniones del público</h2>
+                <div className="relative">
+                    <select
+                        value={selectedRating}
+                        onChange={(e) => setSelectedRating(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}
+                        className="border rounded p-2 appearance-none pr-8"
+                    >
+                        <option value="all">Todas las estrellas</option>
+                        {[5, 4, 3, 2, 1].map((rating) => (
+                            <option key={rating} value={rating}>
+                                {rating} estrellas
+                            </option>
+                        ))}
+                    </select>
+                    <span className="absolute right-2 top-2 text-yellow-500 pointer-events-none">
+                        <FaStar />
+                    </span>
+                </div>
+            </div>
+            {filteredRecommendations.map((rec) => (
                 <div key={rec.id} className="mb-4">
                     <div className="flex items-center mb-2">
                         <div className="bg-gray-300 rounded-full w-10 h-10 flex justify-center items-center text-lg font-bold text-white">
@@ -57,6 +83,9 @@ const UserCommentsCard: React.FC<UserCommentsCardProps> = ({ recommendations }) 
                     </div>
                 </div>
             ))}
+            {filteredRecommendations.length === 0 && (
+                <p className="text-center text-gray-500">No hay comentarios disponibles para esta selección.</p>
+            )}
         </div>
     );
 };
