@@ -1,4 +1,3 @@
-// app/admin/dashboard/page.tsx
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -28,14 +27,9 @@ interface Recommendation {
 }
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState<Stats>({
-    totalProducts: 0,
-    totalCategories: 0,
-    pendingOrders: 0,
-    readyOrders: 0
-  });
-
+  const [stats, setStats] = useState<Stats | null>(null);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [loadingRecommendations, setLoadingRecommendations] = useState<boolean>(true);
 
   useEffect(() => {
     async function fetchStats() {
@@ -52,9 +46,12 @@ export default function DashboardPage() {
       try {
         const response = await fetch('/api/recomendaciones/calificacion');
         const data = await response.json();
-        setRecommendations(data);
+        setRecommendations(data || []);
       } catch (error) {
         console.error('Error fetching recommendations:', error);
+        setRecommendations([]);
+      } finally {
+        setLoadingRecommendations(false);
       }
     }
 
@@ -64,34 +61,53 @@ export default function DashboardPage() {
 
   return (
       <div className='bg-gray-100 min-h-screen'>
-        <div className='p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
-          <StatCard title="Total Productos" value={stats.totalProducts}/>
-          <StatCard title="Total Categorias" value={stats.totalCategories}/>
-          <StatCard title="Ordenes Pendiente" value={stats.pendingOrders}/>
-          <StatCard title="Ordenes Listas" value={stats.readyOrders}/>
-        </div>
-        <div className='p-4 grid grid-cols-1 md:grid-cols-3 gap-4'>
-          <div className='flex justify-center items-center w-full h-full'>
-            <PieChart/>
+        <div>
+          <div className='p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
+            {stats ? (
+                <>
+                  <StatCard title="Total Productos" value={stats.totalProducts}/>
+                  <StatCard title="Total Categorias" value={stats.totalCategories}/>
+                  <StatCard title="Ordenes Pendiente" value={stats.pendingOrders}/>
+                  <StatCard title="Ordenes Listas" value={stats.readyOrders}/>
+                </>
+            ) : (
+                <div>Cargando estadísticas...</div>
+            )}
           </div>
-          <div className='flex justify-center items-center w-full h-full'>
-            <RecentOrders/>
+          <div className='p-4 grid grid-cols-1 md:grid-cols-3 gap-4'>
+            <div className='flex justify-center items-center w-full h-full'>
+              <PieChart/>
+            </div>
+            <div className='flex justify-center items-center w-full h-full'>
+              <RecentOrders/>
+            </div>
+            <div className='flex justify-center items-center w-full h-full'>
+              <TopProducts/>
+            </div>
           </div>
-          <div className='flex justify-center items-center w-full h-full'>
-            <TopProducts/>
+          <div className='p-4 w-full'>
+            <BarChart/>
           </div>
-        </div>
-
-        <div className='p-4 w-full'>
-          <BarChart/>
         </div>
 
         <div className='p-4 grid grid-cols-1 md:grid-cols-2 gap-4'>
-          <StarRatingsCard recommendations={recommendations}/>
-          <UserCommentsCard
-              recommendations={recommendations}
-              setRecommendations={setRecommendations}  // Pasar setRecommendations aquí
-          />
+          <div className="bg-white p-4 rounded-lg shadow-md w-full">
+            {loadingRecommendations ? (
+                <p className="text-center text-gray-500">Cargando recomendaciones...</p>
+            ) : (
+                <StarRatingsCard recommendations={recommendations}/>
+            )}
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow-md w-full">
+            {loadingRecommendations ? (
+                <p className="text-center text-gray-500">Cargando opiniones...</p>
+            ) : (
+                <UserCommentsCard
+                    recommendations={recommendations}
+                    setRecommendations={setRecommendations}
+                />
+            )}
+          </div>
         </div>
       </div>
   );

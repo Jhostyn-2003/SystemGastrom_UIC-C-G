@@ -1,5 +1,4 @@
 // pages/api/recomendaciones/eliminar.ts
-
 import { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/src/lib/prisma';
 
@@ -17,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             } else {
                 // Eliminar todos los comentarios
                 await prisma.recommendation.deleteMany({});
-                res.status(200).json({ message: 'Todos los comentarios han sido eliminados' });
+                res.status(200).json({ message: 'Todos los comentarios han sido eliminados', recommendations: [] });
             }
         } catch (error) {
             console.error('Error deleting recommendation(s):', error);
@@ -27,3 +26,4 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.status(405).json({ error: 'Method not allowed' });
     }
 }
+

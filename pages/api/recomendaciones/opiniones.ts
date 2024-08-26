@@ -15,7 +15,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     createdAt: true,
                 },
             });
-            res.status(200).json(comments);
+
+            // Devolver un array vacío si no hay comentarios
+            res.status(200).json(comments || []);
         } catch (error) {
             res.status(500).json({ error: 'Error fetching comments' });
         }
