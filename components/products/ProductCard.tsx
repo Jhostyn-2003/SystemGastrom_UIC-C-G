@@ -8,18 +8,16 @@ type ProductCardProps = {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-    const imagePath = getImagePath(product.image);
+    const imagePath = product.image ? getImagePath(product.image) : "/path/to/default-image.jpg"; // Ruta a la imagen predeterminada
 
     return (
         <div className="flex flex-col border bg-white rounded-lg overflow-hidden shadow-md h-full">
-            <div className="relative aspect-w-1 aspect-h-1">
+            <div className="relative w-full h-56 overflow-hidden"> {/* Altura fija para todas las imágenes */}
                 <Image
-                    className="object-cover w-full h-full"
+                    className="object-contain w-full h-full" // Cambié a "object-contain" para evitar distorsión
                     src={imagePath}
                     alt={`Imagen platillo ${product.name}`}
-                    layout="responsive"
-                    width={400}
-                    height={400} // Asegura que la relación de aspecto se mantenga constante
+                    layout="fill" // Mantiene el tamaño fijo
                 />
             </div>
 
