@@ -1,21 +1,6 @@
-// components/dashboard/UserCommentsCard.tsx
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import StatCard from '@/components/dashboard/StatCard';
-import BarChart from '@/components/dashboard/BarChart';
-import RecentOrders from '@/components/dashboard/RecentOrders';
-import PieChart from '@/components/dashboard/PieChart';
-import TopProducts from '@/components/dashboard/TopProducts';
-import StarRatingsCard from '@/components/dashboard/StarRatingsCard';
-import UserCommentsCard from '@/components/dashboard/UserCommentsCard';
-
-interface Stats {
-    totalProducts: number;
-    totalCategories: number;
-    pendingOrders: number;
-    readyOrders: number;
-}
+import React from 'react';
 
 interface Recommendation {
     id: number;
@@ -25,78 +10,39 @@ interface Recommendation {
     createdAt: string;
 }
 
-export default function DashboardPage() {
-    const [stats, setStats] = useState<Stats>({
-        totalProducts: 0,
-        totalCategories: 0,
-        pendingOrders: 0,
-        readyOrders: 0
-    });
+interface UserCommentsCardProps {
+    recommendations: Recommendation[];
+}
 
-    const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
-
-    useEffect(() => {
-        async function fetchStats() {
-            try {
-                const response = await fetch('/api/dashboard/stats');
-                const data = await response.json();
-                setStats(data);
-            } catch (error) {
-                console.error('Error fetching stats:', error);
-            }
-        }
-
-        async function fetchRecommendations() {
-            try {
-                const response = await fetch('/api/recommendations');
-                const data = await response.json();
-                setRecommendations(data);
-            } catch (error) {
-                console.error('Error fetching recommendations:', error);
-            }
-        }
-
-        fetchStats();
-        fetchRecommendations();
-    }, []);
-
-    const handleDeleteRecommendation = async (id: number) => {
-        try {
-            await fetch(`/api/recommendations/${id}`, { method: 'DELETE' });
-            setRecommendations(recommendations.filter((rec) => rec.id !== id));
-        } catch (error) {
-            console.error('Error deleting recommendation:', error);
-        }
-    };
-
+const UserCommentsCard: React.FC<UserCommentsCardProps> = ({ recommendations }) => {
     return (
-        <div className='bg-gray-100 min-h-screen'>
-            <div className='p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'>
-                <StatCard title="Total Productos" value={stats.totalProducts} />
-                <StatCard title="Total Categorias" value={stats.totalCategories} />
-                <StatCard title="Ordenes Pendiente" value={stats.pendingOrders} />
-                <StatCard title="Ordenes Listas" value={stats.readyOrders} />
-            </div>
-            <div className='p-4 grid grid-cols-1 md:grid-cols-3 gap-4'>
-                <div className='flex justify-center items-center w-full h-full'>
-                    <PieChart />
+        <div className="bg-white p-4 rounded-lg shadow-md max-h-96 overflow-y-auto">
+            <h2 className="text-xl font-bold mb-4">Opiniones del público</h2>
+            {recommendations.map((rec) => (
+                <div key={rec.id} className="mb-4">
+                    <div className="flex items-center mb-2">
+                        <div className="bg-gray-300 rounded-full w-10 h-10 flex justify-center items-center text-lg font-bold text-white">
+                            {rec.userName.charAt(0)}
+                        </div>
+                        <div className="ml-4">
+                            <p className="font-bold">{rec.userName}</p>
+                            <p className="text-gray-500 text-sm">{new Date(rec.createdAt).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                    <div className="ml-14">
+                        <div className="flex mb-2">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                                <span key={i} className={`text-yellow-500 ${i < rec.rating ? 'text-yellow-500' : 'text-gray-300'}`}>
+                                    ★
+                                </span>
+                            ))}
+                        </div>
+                        <p className="text-gray-800">{rec.comment}</p>
+                    </div>
                 </div>
-                <div className='flex justify-center items-center w-full h-full'>
-                    <RecentOrders />
-                </div>
-                <div className='flex justify-center items-center w-full h-full'>
-                    <TopProducts />
-                </div>
-            </div>
-
-            <div className='p-4 w-full'>
-                <BarChart />
-            </div>
-
-            <div className='p-4 grid grid-cols-1 md:grid-cols-2 gap-4'>
-                <StarRatingsCard recommendations={recommendations} />
-                <UserCommentsCard recommendations={recommendations} onDelete={handleDeleteRecommendation} />
-            </div>
+            ))}
         </div>
     );
-}
+};
+
+export default UserCommentsCard;
