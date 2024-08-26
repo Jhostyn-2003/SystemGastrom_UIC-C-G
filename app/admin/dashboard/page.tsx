@@ -88,7 +88,10 @@ export default function DashboardPage() {
 
         <div className='p-4 grid grid-cols-1 md:grid-cols-2 gap-4'>
           <StarRatingsCard recommendations={recommendations}/>
-          <UserCommentsCard recommendations={recommendations}/>
+          <UserCommentsCard
+              recommendations={recommendations}
+              setRecommendations={setRecommendations}  // Pasar setRecommendations aquí
+          />
         </div>
       </div>
   );
