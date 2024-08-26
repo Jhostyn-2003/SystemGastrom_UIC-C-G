@@ -23,6 +23,38 @@ const StarRatingsCard: React.FC<StarRatingsCardProps> = ({ recommendations }) =>
         count: recommendations.filter((rec) => rec.rating === rating).length,
     }));
 
+    const renderStars = () => {
+        const fullStars = Math.floor(averageRating);
+        const hasHalfStar = averageRating - fullStars >= 0.5;
+
+        return Array.from({ length: 5 }).map((_, i) => {
+            if (i < fullStars) {
+                return (
+                    <span key={i} className="text-yellow-500" style={{ fontSize: '2rem' }}>
+                        ★
+                    </span>
+                );
+            } else if (i === fullStars && hasHalfStar) {
+                return (
+                    <span key={i} className="text-yellow-500" style={{ fontSize: '2rem', position: 'relative' }}>
+                        <span className="text-yellow-500" style={{ position: 'absolute', width: '50%', overflow: 'hidden' }}>
+                            ★
+                        </span>
+                        <span className="text-gray-300">
+                            ★
+                        </span>
+                    </span>
+                );
+            } else {
+                return (
+                    <span key={i} className="text-gray-300" style={{ fontSize: '2rem' }}>
+                        ★
+                    </span>
+                );
+            }
+        });
+    };
+
     return (
         <div className="bg-white p-4 rounded-lg shadow-md">
             <h2 className="text-xl font-bold mb-4">Resumen de la calificación del público</h2>
@@ -30,16 +62,7 @@ const StarRatingsCard: React.FC<StarRatingsCardProps> = ({ recommendations }) =>
                 <span className="text-4xl font-bold">{averageRating.toFixed(1)}</span>
                 <div className="ml-4">
                     <div className="flex">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                            <span
-                                key={i}
-                                className={`text-yellow-500 ${
-                                    i < Math.round(averageRating) ? 'text-yellow-500' : 'text-gray-300'
-                                }`}
-                            >
-                                ★
-                            </span>
-                        ))}
+                        {renderStars()}
                     </div>
                     <span className="text-sm text-gray-500">{totalRatings} calificaciones</span>
                 </div>

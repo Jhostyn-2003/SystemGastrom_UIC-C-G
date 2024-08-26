@@ -32,7 +32,12 @@ const UserCommentsCard: React.FC<UserCommentsCardProps> = ({ recommendations }) 
                     <div className="ml-14">
                         <div className="flex mb-2">
                             {Array.from({ length: 5 }).map((_, i) => (
-                                <span key={i} className={`text-yellow-500 ${i < rec.rating ? 'text-yellow-500' : 'text-gray-300'}`}>
+                                <span
+                                    key={i}
+                                    className={`${
+                                        i < rec.rating ? 'text-yellow-500' : 'text-gray-300'
+                                    }`}
+                                >
                                     ★
                                 </span>
                             ))}
