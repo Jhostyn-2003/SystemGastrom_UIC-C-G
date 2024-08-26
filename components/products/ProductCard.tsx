@@ -1,7 +1,7 @@
-import { formatCurrecy, getImagePath } from "@/src/utils"
-import { Product } from "@prisma/client"
-import Image from "next/image"
-import AddProductButton from "./AddProductButton"
+import { formatCurrecy, getImagePath } from "@/src/utils";
+import { Product } from "@prisma/client";
+import Image from "next/image";
+import AddProductButton from "./AddProductButton";
 
 type ProductCardProps = {
     product: Product
@@ -12,13 +12,14 @@ export default function ProductCard({ product }: ProductCardProps) {
 
     return (
         <div className="flex flex-col border bg-white rounded-lg overflow-hidden shadow-md h-full">
-            <div className="relative">
+            <div className="relative aspect-w-1 aspect-h-1">
                 <Image
-                    className="object-cover w-full h-48 md:h-56 lg:h-72"
+                    className="object-cover w-full h-full"
                     src={imagePath}
                     alt={`Imagen platillo ${product.name}`}
+                    layout="responsive"
                     width={400}
-                    height={500}
+                    height={400} // Asegura que la relación de aspecto se mantenga constante
                 />
             </div>
 
@@ -35,4 +36,3 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
     );
 }
-

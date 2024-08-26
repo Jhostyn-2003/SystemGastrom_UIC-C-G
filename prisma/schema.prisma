@@ -54,3 +54,11 @@ model Payment {
   transferImage String? // Nombre o ruta de la imagen de la transferencia
   description   String? // Descripción opcional del método de pago
 }
+
+model Recommendation {
+  id        Int      @id @default(autoincrement())
+  userName  String // Nombre de la persona que comenta
+  rating    Int // Calificación en estrellas (1 a 5)
+  comment   String // Comentario del usuario
+  createdAt DateTime @default(now()) // Fecha y hora del comentario
+}
