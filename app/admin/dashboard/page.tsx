@@ -8,11 +8,23 @@ import RecentOrders from '@/components/dashboard/RecentOrders';
 import PieChart from '@/components/dashboard/PieChart';
 import TopProducts from '@/components/dashboard/TopProducts';
 
+// Recomendaciones
+import StarRatingsCard from '@/components/dashboard/StarRatingsCard';
+import UserCommentsCard from '@/components/dashboard/UserCommentsCard';
+
 interface Stats {
   totalProducts: number;
   totalCategories: number;
   pendingOrders: number;
   readyOrders: number;
+}
+
+interface Recommendation {
+  id: number;
+  userName: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
 }
 
 export default function DashboardPage() {
@@ -22,6 +34,8 @@ export default function DashboardPage() {
     pendingOrders: 0,
     readyOrders: 0
   });
+
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
 
   useEffect(() => {
     async function fetchStats() {
@@ -34,7 +48,18 @@ export default function DashboardPage() {
       }
     }
 
+    async function fetchRecommendations() {
+      try {
+        const response = await fetch('/api/recomendaciones/calificacion');
+        const data = await response.json();
+        setRecommendations(data);
+      } catch (error) {
+        console.error('Error fetching recommendations:', error);
+      }
+    }
+
     fetchStats();
+    fetchRecommendations();
   }, []);
 
   return (
@@ -47,18 +72,23 @@ export default function DashboardPage() {
         </div>
         <div className='p-4 grid grid-cols-1 md:grid-cols-3 gap-4'>
           <div className='flex justify-center items-center w-full h-full'>
-            <PieChart />
+            <PieChart/>
           </div>
           <div className='flex justify-center items-center w-full h-full'>
-            <RecentOrders />
+            <RecentOrders/>
           </div>
           <div className='flex justify-center items-center w-full h-full'>
-            <TopProducts />
+            <TopProducts/>
           </div>
         </div>
 
         <div className='p-4 w-full'>
-          <BarChart />
+          <BarChart/>
+        </div>
+
+        <div className='p-4 grid grid-cols-1 md:grid-cols-2 gap-4'>
+          <StarRatingsCard recommendations={recommendations}/>
+          <UserCommentsCard recommendations={recommendations}/>
         </div>
       </div>
   );
