@@ -15,6 +15,17 @@ interface UserCommentsCardProps {
 }
 
 const UserCommentsCard: React.FC<UserCommentsCardProps> = ({ recommendations }) => {
+    const formatDateUTC = (dateString: string) => {
+        const date = new Date(dateString);
+        const options: Intl.DateTimeFormatOptions = {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            timeZone: 'UTC', // Usar UTC como zona horaria
+        };
+        return date.toLocaleDateString('es-ES', options);
+    };
+
     return (
         <div className="bg-white p-4 rounded-lg shadow-md max-h-96 overflow-y-auto">
             <h2 className="text-xl font-bold mb-4">Opiniones del público</h2>
@@ -26,7 +37,7 @@ const UserCommentsCard: React.FC<UserCommentsCardProps> = ({ recommendations }) 
                         </div>
                         <div className="ml-4">
                             <p className="font-bold">{rec.userName}</p>
-                            <p className="text-gray-500 text-sm">{new Date(rec.createdAt).toLocaleDateString()}</p>
+                            <p className="text-gray-500 text-sm">{formatDateUTC(rec.createdAt)}</p>
                         </div>
                     </div>
                     <div className="ml-14">
