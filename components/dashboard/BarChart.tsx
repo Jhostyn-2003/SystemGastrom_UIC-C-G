@@ -167,14 +167,35 @@ export default function Dashboard() {
     }));
   };
 
+  //Para ecuador
+  /*
   const formatDailyRevenueData = (data: RevenueData[]) => {
-    return data.map(item => ({
-      date: new Date(item.date).toLocaleDateString('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-      total: parseFloat(item.total.toFixed(1)), // Asegurar un decimal
-    }));
-  };
+    return data.map(item => {
+      const dateUTC = new Date(item.date);
+      // Convertir la fecha UTC a la zona horaria de Ecuador sin cambiar el día
+      const localDate = new Date(dateUTC.getTime() - 5 * 3600000);
+      return {
+        date: localDate.toLocaleDateString('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+        total: parseFloat(item.total.toFixed(1)), // Asegurar un decimal
+      };
+    });
+  };*/
+    const formatDailyRevenueData = (data: RevenueData[]) => {
+        return data.map(item => {
+            const dateUTC = new Date(item.date);
+            // Usar directamente la fecha UTC sin convertirla a la hora local
+            return {
+                date: dateUTC.toLocaleDateString('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' }),
+                total: parseFloat(item.total.toFixed(1)), // Asegurar un decimal
+            };
+        });
+    };
 
-  const handleViewChange = (selectedView: 'daily' | 'monthly') => {
+
+
+
+
+    const handleViewChange = (selectedView: 'daily' | 'monthly') => {
     setView(selectedView);
     if (selectedView === 'daily') {
       const now = new Date();
