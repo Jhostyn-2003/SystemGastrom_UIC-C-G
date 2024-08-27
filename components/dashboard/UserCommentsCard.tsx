@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FaStar, FaTrashAlt } from 'react-icons/fa';
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
@@ -18,11 +18,28 @@ interface Recommendation {
 interface UserCommentsCardProps {
     recommendations: Recommendation[];
     setRecommendations: React.Dispatch<React.SetStateAction<Recommendation[]>>;
+    selectedDate: Date | null;
 }
 
-const UserCommentsCard: React.FC<UserCommentsCardProps> = ({ recommendations, setRecommendations }) => {
+const UserCommentsCard: React.FC<UserCommentsCardProps> = ({ recommendations, setRecommendations, selectedDate }) => {
     const [selectedRating, setSelectedRating] = useState<number | 'all'>('all');
-    const isDeletingRef = useRef(false); // Evitar múltiples llamadas
+    const isDeletingRef = useRef(false);
+
+    useEffect(() => {
+        if (!selectedDate) return;
+
+        const fetchFilteredComments = async () => {
+            try {
+                const response = await fetch(`/api/recomendaciones/cards-recomend?startDate=${selectedDate.toISOString().split('T')[0]}`);
+                const data = await response.json();
+                setRecommendations(data || []);
+            } catch (error) {
+                console.error('Error fetching comments:', error);
+            }
+        };
+
+        fetchFilteredComments();
+    }, [selectedDate, setRecommendations]);
 
     const formatDateUTC = (dateString: string) => {
         const date = new Date(dateString);
@@ -36,7 +53,7 @@ const UserCommentsCard: React.FC<UserCommentsCardProps> = ({ recommendations, se
     };
 
     const handleDelete = (id: number) => {
-        if (isDeletingRef.current) return; // Evita que se ejecute si ya está en proceso
+        if (isDeletingRef.current) return;
 
         confirmAlert({
             title: 'Confirmar eliminación',
@@ -76,7 +93,7 @@ const UserCommentsCard: React.FC<UserCommentsCardProps> = ({ recommendations, se
     };
 
     const handleDeleteAll = () => {
-        if (isDeletingRef.current) return; // Evita que se ejecute si ya está en proceso
+        if (isDeletingRef.current) return;
 
         confirmAlert({
             title: 'Confirmar eliminación',
@@ -91,7 +108,7 @@ const UserCommentsCard: React.FC<UserCommentsCardProps> = ({ recommendations, se
                                 method: 'DELETE',
                             });
                             if (response.ok) {
-                                setRecommendations([]); // Asegúrate de limpiar el estado
+                                setRecommendations([]);
                                 toast.success('Todos los comentarios han sido eliminados con éxito', {
                                     autoClose: 2000,
                                     hideProgressBar: true,
@@ -147,8 +164,8 @@ const UserCommentsCard: React.FC<UserCommentsCardProps> = ({ recommendations, se
                             ))}
                         </select>
                         <span className="absolute right-2 top-2 text-yellow-500 pointer-events-none">
-              <FaStar />
-            </span>
+                            <FaStar />
+                        </span>
                     </div>
                 </div>
             </div>
@@ -181,8 +198,8 @@ const UserCommentsCard: React.FC<UserCommentsCardProps> = ({ recommendations, se
                                             i < rec.rating ? 'text-yellow-500' : 'text-gray-300'
                                         }`}
                                     >
-                    ★
-                  </span>
+                                        ★
+                                    </span>
                                 ))}
                             </div>
                             <p className="text-gray-800">{rec.comment}</p>

@@ -189,10 +189,10 @@ export default function Dashboard() {
     labels: revenueData.map(d => d.date),
     datasets: [
       {
-        label: 'Ingresos',
+        label: 'Ingresos $',
         data: revenueData.map(d => d.total),
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: '#51829B',
+        borderColor: '#51829B',
         borderWidth: 1,
       },
     ],
@@ -248,7 +248,7 @@ export default function Dashboard() {
 
   return (
       <div className="container mx-auto p-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-4xl font-bold mb-6 text-center text-gray-800">Ingresos: Vista Mensual y Semanal (con Detalle Diario)</h1>
+        <h1 className="text-xl font-semibold mb-4">Ingresos: Vista Mensual y Semanal (con Detalle Diario)</h1>
 
         <div className="flex flex-col md:flex-row items-center mb-6 gap-4">
           <select
