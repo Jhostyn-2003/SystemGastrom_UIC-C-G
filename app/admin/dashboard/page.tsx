@@ -10,6 +10,24 @@ import StarRatingsCard from '@/components/dashboard/StarRatingsCard';
 import UserCommentsCard from '@/components/dashboard/UserCommentsCard';
 import LowSalesList from "@/components/dashboard/LowSalesList";
 
+// Definir la interfaz Stats
+interface Stats {
+    totalProducts: number;
+    totalCategories: number;
+    pendingOrders: number;
+    readyOrders: number;
+}
+
+interface Recommendation {
+    id: number;
+    userName: string;
+    rating: number;
+    comment: string;
+    createdAt: string;
+}
+
+
+
 export default function DashboardPage() {
     const [stats, setStats] = useState<Stats | null>(null);
     const [recommendations, setRecommendations] = useState<Recommendation[]>([]);

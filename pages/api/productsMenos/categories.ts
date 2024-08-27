@@ -1,8 +1,9 @@
 // pages/api/productsMenos/categories.ts
 
+import { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/src/lib/prisma';
 
-export default async function handler(req, res) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
         const categories = await prisma.category.findMany({
             select: {

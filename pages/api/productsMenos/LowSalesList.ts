@@ -1,8 +1,9 @@
 // pages/api/productsMenos/LowSalesList.ts
 
+import { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/src/lib/prisma';
 
-export default async function handler(req, res) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { categorySlug } = req.query; // Obtenemos el slug de la categoría desde los query params
 
     try {
@@ -10,7 +11,7 @@ export default async function handler(req, res) {
         const productsInCategory = await prisma.product.findMany({
             where: {
                 category: {
-                    slug: categorySlug,
+                    slug: categorySlug as string, // Aseguramos que categorySlug sea tratado como string
                 },
             },
             select: {
@@ -53,3 +54,4 @@ export default async function handler(req, res) {
         res.status(500).json({ error: 'Error fetching unsold products data' });
     }
 }
+

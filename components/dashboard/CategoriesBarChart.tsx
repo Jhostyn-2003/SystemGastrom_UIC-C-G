@@ -1,4 +1,3 @@
-// app/admin/dashboard/CategoriesBarChart.tsx
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -56,14 +55,14 @@ export default function CategoriesBarChart() {
         borderColor: '#51829B',
         borderWidth: 1,
         datalabels: {
-          anchor: 'end',
-          align: 'end',
+          anchor: 'end' as const, // Usar un valor compatible
+          align: 'end' as const, // Usar un valor compatible
           color: '#333',
           font: {
             size: 14,
-            weight: 'bold',
+            weight: 'bold' as const, // Cambiar 'bold' por un valor compatible
           },
-          formatter: function (value) {
+          formatter: function (value: number) {
             return value; // Mostrar el valor total
           }
         },
@@ -82,7 +81,7 @@ export default function CategoriesBarChart() {
           font: {
             size: 14,
             family: 'Arial, sans-serif',
-            weight: 'bold' as const,
+            weight: 'bold' as const, // Cambiar 'bold' por un valor compatible
           },
           color: '#51829B',
         },
@@ -93,14 +92,14 @@ export default function CategoriesBarChart() {
         font: {
           size: 18,
           family: 'Arial, sans-serif',
-          weight: 'bold' as const,
+          weight: 'bold' as const, // Cambiar 'bold' por un valor compatible
         },
         color: '#333',
       },
       datalabels: {
-        anchor: 'end',
-        align: 'end',
-        formatter: (value) => `${value}`, // Formatear para mostrar el número total
+        anchor: 'end' as const, // Usar un valor compatible
+        align: 'end' as const, // Usar un valor compatible
+        formatter: (value: number) => `${value}`, // Formatear para mostrar el número total
         color: '#333',
         font: {
           size: 12,

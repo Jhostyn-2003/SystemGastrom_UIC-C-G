@@ -28,7 +28,7 @@ const StarRatingsCard: React.FC<StarRatingsCardProps> = ({ recommendations, setR
 
         const fetchFilteredRecommendations = async () => {
             try {
-                const response = await fetch(`/api/recomendaciones/cards-recomend?startDate=${selectedDate.toISOString().split('T')[0]}`);
+                const response = await fetch(`/api/recomendaciones/cards-recomend?startDate=${selectedDate?.toISOString().split('T')[0]}`);
                 const data = await response.json();
                 setRecommendations(data || []);
             } catch (error) {
@@ -40,7 +40,7 @@ const StarRatingsCard: React.FC<StarRatingsCardProps> = ({ recommendations, setR
     }, [selectedDate, setRecommendations]);
 
     const totalRatings = recommendations.length;
-    const averageRating = totalRatings > 0 ? (recommendations.reduce((sum, rec) => sum + rec.rating, 0) / totalRatings).toFixed(1) : 0;
+    const averageRating = totalRatings > 0 ? parseFloat((recommendations.reduce((sum, rec) => sum + rec.rating, 0) / totalRatings).toFixed(1)) : 0;
 
     const ratingCount = [5, 4, 3, 2, 1].map((rating) => ({
         rating,
@@ -51,7 +51,7 @@ const StarRatingsCard: React.FC<StarRatingsCardProps> = ({ recommendations, setR
         return Array.from({ length: 5 }).map((_, i) => {
             const starRating = i + 1;
             const fullStarWidth = averageRating >= starRating ? '100%' :
-                averageRating > starRating - 1 ? `${(Number(averageRating) - (starRating - 1)) * 100}%` : '0%';
+                averageRating > starRating - 1 ? `${(averageRating - (starRating - 1)) * 100}%` : '0%';
 
             return (
                 <span
