@@ -20,6 +20,7 @@ export default function LowSalesList() {
     const [products, setProducts] = useState<LowSalesProduct[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string>('');
+    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
         async function fetchCategories() {
@@ -44,6 +45,7 @@ export default function LowSalesList() {
         if (!selectedCategory) return;
 
         async function fetchLowSalesProducts() {
+            setLoading(true);
             try {
                 const response = await fetch(`/api/productsMenos/LowSalesList?categorySlug=${selectedCategory}`);
                 const data = await response.json();
@@ -54,6 +56,8 @@ export default function LowSalesList() {
                 }
             } catch (error) {
                 setProducts([]); // En caso de error, establece un array vacío
+            } finally {
+                setLoading(false);
             }
         }
 
@@ -77,17 +81,27 @@ export default function LowSalesList() {
                     </option>
                 ))}
             </select>
-            <ul className="space-y-2">
-                {products.map((product, index) => (
-                    <li key={index} className="flex justify-between items-center p-2 bg-gray-100 rounded">
-                        <div className="flex items-center">
-                            <FaArrowDown className="text-red-500 mr-2"/> {/* Ícono de bajo crecimiento */}
-                            <span>{product.product}</span>
-                        </div>
-                        <span className="text-gray-500">{product.quantity} ventas</span>
-                    </li>
-                ))}
-            </ul>
+            {loading ? (
+                <div className="text-center text-gray-500">Cargando productos...</div>
+            ) : (
+                <>
+                    {products.length > 0 ? (
+                        <ul className="space-y-2">
+                            {products.map((product, index) => (
+                                <li key={index} className="flex justify-between items-center p-2 bg-gray-100 rounded">
+                                    <div className="flex items-center">
+                                        <FaArrowDown className="text-red-500 mr-2"/> {/* Ícono de bajo crecimiento */}
+                                        <span>{product.product}</span>
+                                    </div>
+                                    <span className="text-gray-500">{product.quantity} ventas</span>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <div className="text-center text-gray-500">No hay productos con baja demanda en esta categoría.</div>
+                    )}
+                </>
+            )}
         </div>
     );
 }
