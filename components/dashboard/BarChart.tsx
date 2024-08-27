@@ -163,14 +163,14 @@ export default function Dashboard() {
 
     return months.map((month, index) => ({
       date: month,
-      total: monthTotals[index],
+      total: parseFloat(monthTotals[index].toFixed(1)), // Asegurar un decimal
     }));
   };
 
   const formatDailyRevenueData = (data: RevenueData[]) => {
     return data.map(item => ({
       date: new Date(item.date).toLocaleDateString('es-EC', { day: '2-digit', month: '2-digit', year: 'numeric' }),
-      total: item.total,
+      total: parseFloat(item.total.toFixed(1)), // Asegurar un decimal
     }));
   };
 
@@ -223,6 +223,14 @@ export default function Dashboard() {
         },
         color: '#333',
       },
+      tooltip: {
+        callbacks: {
+          label: function (context: any) {
+            const value = context.raw;
+            return `Ingresos $: ${value.toFixed(1)}`; // Formatear el valor con 1 decimal en los tooltips
+          }
+        }
+      }
     },
     scales: {
       x: {
@@ -241,6 +249,9 @@ export default function Dashboard() {
           font: {
             size: 12,
           },
+          callback: function (value: any) {
+            return value.toFixed(1); // Formatear el valor con 1 decimal en el eje y
+          }
         },
       },
     },
