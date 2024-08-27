@@ -212,6 +212,7 @@ export default function OrderSummary() {
                             placeholder="Tu Nombre"
                             className="bg-white border border-gray-100 p-2 w-full"
                             name="name"
+                            maxLength={40} // Limita a 40 caracteres
                         />
 
                         <div className="flex flex-col space-y-2">
@@ -269,6 +270,7 @@ export default function OrderSummary() {
                                     className="bg-white border border-gray-100 p-2 w-full"
                                     value={paymentDescription}
                                     onChange={(e) => setPaymentDescription(e.target.value)}
+
                                 />
                             </div>
                         )}
@@ -278,7 +280,11 @@ export default function OrderSummary() {
                                 placeholder="Descripción del Pago en Efectivo"
                                 className="bg-white border border-gray-100 p-2 w-full"
                                 value={paymentDescription}
-                                onChange={(e) => setPaymentDescription(e.target.value)}
+                               /*onChange={(e) => setPaymentDescription(e.target.value)}*/
+                                onChange={(e) => {
+                                    setPaymentDescription(e.target.value.slice(0, 130));
+                                }}
+
                             />
                         )}
 
