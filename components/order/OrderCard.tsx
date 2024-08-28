@@ -169,7 +169,7 @@ export default function OrderCard({ order }: OrderCardProps) {
                 <DialogTitle id="responsive-dialog-title">Detalles del Pago</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Descripción de Pago: {order.payment ? (order.payment.description ?? 'Sin descripción') : 'No especificado'}
+                        Descripción: {order.payment ? (order.payment.description ?? 'Sin descripción') : 'No especificado'}
                     </DialogContentText>
                     {order.payment?.transferImage && (
                         <img
