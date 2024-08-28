@@ -9,29 +9,57 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { year, categoryId, productId } = req.query;
 
     try {
+        // Verificar que el parámetro de año esté presente
+        if (!year) {
+            return res.status(400).json({ error: 'Year parameter is required' });
+        }
+
+        // Convertir el año en tipo de dato número
+        const yearNum = parseInt(year as string);
+
+        // Validar que el año sea un número válido
+        if (isNaN(yearNum)) {
+            return res.status(400).json({ error: 'Year must be a valid number' });
+        }
+
         const startYear = new Date(`${year}-01-01`);
         const endYear = new Date(`${year}-12-31`);
         endYear.setHours(23, 59, 59, 999);
 
-        const categoryCondition = categoryId ? Prisma.sql`AND p."categoryId" = ${parseInt(categoryId as string)}` : Prisma.sql``;
-        const productCondition = productId ? Prisma.sql`AND p."id" = ${parseInt(productId as string)}` : Prisma.sql``;
-
+        // Realizar la consulta SQL para calcular los ingresos mensuales utilizando solo la tabla "Order"
         const revenueData = await prisma.$queryRaw`
-      SELECT
-        DATE_TRUNC('month', o."date") AS date,
-        SUM(o."total") AS total
-      FROM "Order" o
-      JOIN "OrderProducts" op ON o."id" = op."orderId"
-      JOIN "Product" p ON p."id" = op."productId"
-      WHERE o."status" = true
-      AND o."date" BETWEEN ${startYear} AND ${endYear}
-      ${categoryCondition}
-      ${productCondition}
-      GROUP BY DATE_TRUNC('month', o."date")
-      ORDER BY date;
-    `;
+            SELECT
+                DATE_TRUNC('month', o."date") AS date,
+                SUM(o."total") AS total
+            FROM "Order" o
+            WHERE o."status" = true
+            AND o."date" BETWEEN ${startYear} AND ${endYear}
+            GROUP BY DATE_TRUNC('month', o."date")
+            ORDER BY date;
+        `;
 
-        res.status(200).json({ monthlyRevenue: revenueData });
+        // Filtrar resultados por categoría y producto después de obtener los ingresos totales
+        let filteredRevenueData = revenueData;
+
+        if (categoryId || productId) {
+            filteredRevenueData = await prisma.$queryRaw`
+                SELECT
+                    DATE_TRUNC('month', o."date") AS date,
+                    SUM(o."total") AS total
+                FROM "Order" o
+                JOIN "OrderProducts" op ON o."id" = op."orderId"
+                JOIN "Product" p ON p."id" = op."productId"
+                WHERE o."status" = true
+                AND o."date" BETWEEN ${startYear} AND ${endYear}
+                ${categoryId ? Prisma.sql`AND p."categoryId" = ${parseInt(categoryId as string)}` : Prisma.sql``}
+                ${productId ? Prisma.sql`AND p."id" = ${parseInt(productId as string)}` : Prisma.sql``}
+                GROUP BY DATE_TRUNC('month', o."date")
+                ORDER BY date;
+            `;
+        }
+
+        // Enviar la respuesta con los datos de ingresos mensuales filtrados
+        res.status(200).json({ monthlyRevenue: filteredRevenueData });
     } catch (error) {
         console.error('Error fetching revenue data:', error);
 
