@@ -1,3 +1,6 @@
+
+# Proyecto GastroSystem-SG1
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
@@ -16,9 +19,38 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Arquitectura del Sistema
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### Arquitectura Web
+![Arquitectura General](https://raw.githubusercontent.com/Jhostyn-2003/SystemGastrom_UIC-C-G/main/public/docs/arquictectura_General.png)
+![Arquitectura Web](https://raw.githubusercontent.com/Jhostyn-2003/SystemGastrom_UIC-C-G/main/public/docs/demo_web.png)
+
+### Arquitectura Bot
+![Arquitectura del Bot](https://raw.githubusercontent.com/Jhostyn-2003/SystemGastrom_UIC-C-G/main/public/docs/arquictectura_bot.png)
+![Demo Web Bot](https://raw.githubusercontent.com/Jhostyn-2003/SystemGastrom_UIC-C-G/main/public/docs/demo_web_v2.png)
+
+## Cobertura de Pruebas
+
+### Cobertura Web
+![Cobertura Web](https://raw.githubusercontent.com/Jhostyn-2003/SystemGastrom_UIC-C-G/main/public/docs/cobertura.png)
+
+### Cobertura Bot
+![Cobertura Bot](https://raw.githubusercontent.com/Jhostyn-2003/SystemGastrom_UIC-C-G/main/public/docs/cobertura_bot.png)
+
+## Demos del Sistema
+
+### Demo en Web
+![Demo Web](https://raw.githubusercontent.com/Jhostyn-2003/SystemGastrom_UIC-C-G/main/public/docs/demo_web.png)
+![Demo Web 2](https://raw.githubusercontent.com/Jhostyn-2003/SystemGastrom_UIC-C-G/main/public/docs/demo_web_v2.png)
+![Demo Web 3](https://raw.githubusercontent.com/Jhostyn-2003/SystemGastrom_UIC-C-G/main/public/docs/demo_web_v3.png)
+
+### Demo en Móvil
+![Demo Móvil](https://raw.githubusercontent.com/Jhostyn-2003/SystemGastrom_UIC-C-G/main/public/docs/demo_Celular.png)
+![Demo Móvil 2](https://raw.githubusercontent.com/Jhostyn-2003/SystemGastrom_UIC-C-G/main/public/docs/demo_Celular_v2.png)
+![Demo Móvil 3](https://raw.githubusercontent.com/Jhostyn-2003/SystemGastrom_UIC-C-G/main/public/docs/demo_Celular_v3.png)
+
+## Tecnologías Usadas
+![Tecnologías](https://raw.githubusercontent.com/Jhostyn-2003/SystemGastrom_UIC-C-G/main/public/docs/Tecnologias.png)
 
 ## Learn More
 
