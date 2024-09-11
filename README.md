@@ -23,11 +23,11 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ### Arquitectura Web
 ![Arquitectura General](https://raw.githubusercontent.com/Jhostyn-2003/SystemGastrom_UIC-C-G/main/public/docs/arquictectura_General.png)
-![Arquitectura Web](https://raw.githubusercontent.com/Jhostyn-2003/SystemGastrom_UIC-C-G/main/public/docs/demo_web.png)
+
 
 ### Arquitectura Bot
 ![Arquitectura del Bot](https://raw.githubusercontent.com/Jhostyn-2003/SystemGastrom_UIC-C-G/main/public/docs/arquictectura_bot.png)
-![Demo Web Bot](https://raw.githubusercontent.com/Jhostyn-2003/SystemGastrom_UIC-C-G/main/public/docs/demo_web_v2.png)
+
 
 ## Cobertura de Pruebas
 
